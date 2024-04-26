@@ -263,12 +263,17 @@ func resourceNotificationTemplate() *schema.Resource {
 func resourceNotificationTemplateCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*awx.AWX)
 	payload := map[string]interface{}{
-		"name":                       d.Get("name").(string),
-		"description":                d.Get("description").(string),
-		"organization":               d.Get("organization_id").(string),
-		"notification_type":          d.Get("notification_type").(string),
-		"notification_configuration": parseNotifyConfig(d.Get("notification_configuration").(map[string]interface{})),
+		"name":              d.Get("name").(string),
+		"description":       d.Get("description").(string),
+		"organization":      d.Get("organization_id").(string),
+		"notification_type": d.Get("notification_type").(string),
 	}
+
+	notificationConfig := d.Get("notification_configuration").(*schema.Set).List()
+	if len(notificationConfig) != 0 {
+		payload["notification_configuration"] = notificationConfig[0].(map[string]interface{})
+	}
+
 	messages := d.Get("messages").(*schema.Set).List()
 	if len(messages) != 0 {
 		payload["messages"] = messages[0].(map[string]interface{})
@@ -295,12 +300,17 @@ func resourceNotificationTemplateUpdate(ctx context.Context, d *schema.ResourceD
 		return utils.DiagNotFound(diagNotificationTemplateTitle, id, err)
 	}
 	payload := map[string]interface{}{
-		"name":                       d.Get("name").(string),
-		"description":                d.Get("description").(string),
-		"organization":               d.Get("organization_id").(string),
-		"notification_type":          d.Get("notification_type").(string),
-		"notification_configuration": parseNotifyConfig(d.Get("notification_configuration").(map[string]interface{})),
+		"name":              d.Get("name").(string),
+		"description":       d.Get("description").(string),
+		"organization":      d.Get("organization_id").(string),
+		"notification_type": d.Get("notification_type").(string),
 	}
+
+	notificationConfig := d.Get("notification_configuration").(*schema.Set).List()
+	if len(notificationConfig) != 0 {
+		payload["notification_configuration"] = notificationConfig[0].(map[string]interface{})
+	}
+
 	messages := d.Get("messages").(*schema.Set).List()
 	if len(messages) != 0 {
 		payload["messages"] = messages[0].(map[string]interface{})
@@ -355,27 +365,12 @@ func setNotificationTemplateResourceData(d *schema.ResourceData, r *awx.Notifica
 	if err := d.Set("notification_type", r.NotificationType); err != nil {
 		fmt.Println("Error setting notification_type", err)
 	}
-	if err := d.Set("notification_configuration", r.NotificationConfiguration); err != nil {
+	if err := d.Set("notification_configuration", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{r.NotificationConfiguration})); err != nil {
 		fmt.Println("Error setting notification_configuration", err)
 	}
-
 	if err := d.Set("messages", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{r.Messages})); err != nil {
 		fmt.Println("Error setting messages", err)
 	}
 	d.SetId(strconv.Itoa(r.ID))
 	return d
-}
-
-func parseNotifyConfig(n map[string]interface{}) map[string]interface{} {
-	for key, value := range n {
-		if value == "" {
-			delete(n, key)
-			continue
-		}
-		switch key {
-		case "channels":
-			n[key] = []interface{}{value}
-		}
-	}
-	return n
 }
