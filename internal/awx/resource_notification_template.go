@@ -44,10 +44,193 @@ func resourceNotificationTemplate() *schema.Resource {
 				Description: "The description of the notification template.",
 			},
 			"notification_configuration": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Default:     nil,
-				Description: "Build custom message responses for the notification template.",
+				Description: "Notification configuration settings based on the notification type.",
+				// documented at OPTIONS /api/v2/notification_templates/
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// generic settings (re-used across notification types)
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "HTTP or SMTP password.",
+						},
+						"port": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "SMTP or IRC server port.",
+						},
+						"token": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Slack or PagerDuty authentication token.",
+						},
+						"username": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "HTTP or SMTP username.",
+						},
+						"use_ssl": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Use SSL for IRC or SMTP connections.",
+						},
+						// email notification-type settings
+						"host": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "SMTP server hostname.",
+						},
+						"recipients": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The email address(es) to send notifications to.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"sender": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The email address to send notifications from.",
+						},
+						"timeout": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "SMTP server timeout.",
+							Default:     30,
+						},
+						"use_tls": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Use TLS for SMTP connections.",
+						},
+						// slack notification-type settings
+						"channels": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The Slack channel(s) to send notifications to.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"hex_color": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						// twilio notification-type settings
+						"account_sid": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Twilio account SID",
+						},
+						"account_token": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Twilio account token",
+						},
+						"from_number": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Twilio from number",
+						},
+						"to_numbers": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Twilio to numbers",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						// pagerduty notification-type settings
+						"client_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "PagerDuty client name",
+						},
+						"service_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "PagerDuty service key",
+						},
+						"subdomain": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "PagerDuty subdomain",
+						},
+						// grafana notification-type settings
+						"grafana_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Grafana API key",
+						},
+						"grafana_url": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Grafana URL",
+						},
+						// webhook notification-type settings
+						"disable_ssl_verification": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"headers": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Description: "The headers to include in the webhook request.",
+						},
+						"http_method": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The HTTP method to use when sending the webhook request.",
+						},
+						"url": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The HTTP webhook URL.",
+						},
+						// mattermost notification-type settings
+						"mattermost_no_verify_ssl": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"mattermost_url": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The Mattermost URL.",
+						},
+						// rocketchat notification-type settings
+						"rocketchat_no_verify_ssl": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"rocketchat_url": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The RocketChat URL.",
+						},
+						// irc notification-type settings
+						"server": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The IRC server hostname.",
+						},
+						"nickname": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"targets": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "The IRC channel(s) to send notifications to.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"messages": {
 				Type:        schema.TypeSet,
