@@ -25,7 +25,7 @@ Resource `awx_notification_template` manages notification templates within an AW
 
 - `description` (String) The description of the notification template.
 - `messages` (Block Set) The description of the notification template. Options are `started`, `success`, `error`. (see [below for nested schema](#nestedblock--messages))
-- `notification_configuration` (Map of String) Build custom message responses for the notification template.
+- `notification_configuration` (Block Set) Notification configuration settings based on the notification type. (see [below for nested schema](#nestedblock--notification_configuration))
 
 ### Read-Only
 
@@ -39,3 +39,42 @@ Optional:
 - `error` (Map of String) The message to send when the job starts.
 - `started` (Map of String) The message to send when the job starts.
 - `success` (Map of String) The message to send when the job starts.
+
+
+<a id="nestedblock--notification_configuration"></a>
+### Nested Schema for `notification_configuration`
+
+Optional:
+
+- `account_sid` (String) Twilio account SID
+- `account_token` (String) Twilio account token
+- `channels` (List of String) The Slack channel(s) to send notifications to.
+- `client_name` (String) PagerDuty client name
+- `disable_ssl_verification` (Boolean)
+- `from_number` (String) Twilio from number
+- `grafana_key` (String) Grafana API key
+- `grafana_url` (String) Grafana URL
+- `headers` (Map of String) The headers to include in the webhook request.
+- `hex_color` (String)
+- `host` (String) SMTP server hostname.
+- `http_method` (String) The HTTP method to use when sending the webhook request.
+- `mattermost_no_verify_ssl` (Boolean)
+- `mattermost_url` (String) The Mattermost URL.
+- `nickname` (String)
+- `password` (String) HTTP or SMTP password.
+- `port` (Number) SMTP or IRC server port.
+- `recipients` (List of String) The email address(es) to send notifications to.
+- `rocketchat_no_verify_ssl` (Boolean)
+- `rocketchat_url` (String) The RocketChat URL.
+- `sender` (String) The email address to send notifications from.
+- `server` (String) The IRC server hostname.
+- `service_key` (String) PagerDuty service key
+- `subdomain` (String) PagerDuty subdomain
+- `targets` (List of String) The IRC channel(s) to send notifications to.
+- `timeout` (Number) SMTP server timeout.
+- `to_numbers` (List of String) Twilio to numbers
+- `token` (String) Slack or PagerDuty authentication token.
+- `url` (String) The HTTP webhook URL.
+- `use_ssl` (Boolean) Use SSL for IRC or SMTP connections.
+- `use_tls` (Boolean) Use TLS for SMTP connections.
+- `username` (String) HTTP or SMTP username.
