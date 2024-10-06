@@ -26,6 +26,6 @@ jobs:
       - name: "Git Push Release Tag"
         run: |
           export VERSION=$(cat VERSION)
-          echo $VERSION
-          git tag $(cat VERSION)
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/josh-silvas/terraform-provider-awx $VERSION
+          echo "Publishing tag $VERSION for release."
+          git tag $VERSION
+          git push origin $VERSION
