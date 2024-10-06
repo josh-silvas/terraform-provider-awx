@@ -3,7 +3,7 @@ name: "Terraform Provider Release"
 on:
   push:
     branches:
-      - "main"
+      - "josh-silvas/tag-release"
 
 # Releases need permissions to read and write the repository contents.
 # GitHub considers creating releases and uploading assets as writing contents.
@@ -25,8 +25,5 @@ jobs:
 
       - name: "Git Push Release Tag"
         run: |
-          git config --global user.name "${{ vars.TF_DEVEX_CI_COMMIT_AUTHOR }}"
-          git config --global user.email "${{ vars.TF_DEVEX_CI_COMMIT_EMAIL }}"
-
           git tag $(shell cat VERSION)
           git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/josh-silvas/terraform-provider-awx.git" "$(shell cat VERSION)"
