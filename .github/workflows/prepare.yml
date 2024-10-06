@@ -25,5 +25,6 @@ jobs:
 
       - name: "Git Push Release Tag"
         run: |
-          git tag $(shell cat VERSION)
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/josh-silvas/terraform-provider-awx.git" "$(shell cat VERSION)"
+          ls -al
+          git tag $(cat VERSION)
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/josh-silvas/terraform-provider-awx.git" "$(cat VERSION)"
