@@ -87,14 +87,20 @@ func resourceSettingUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 func resourceSettingRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*awx.AWX)
-	if _, err := client.SettingService.GetSettingsBySlug("all", make(map[string]string)); err != nil {
+	res, err := client.SettingService.GetSettingsBySlug("all", make(map[string]string))
+	if err != nil {
 		return utils.DiagFetch("Settings Read", "all", err)
 	}
 
 	if err := d.Set("name", d.Id()); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("value", d.Get("value").(string)); err != nil {
+
+	val, err := (*res)[d.Id()].MarshalJSON()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("value", string(val)); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
