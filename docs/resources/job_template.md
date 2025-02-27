@@ -54,11 +54,18 @@ resource "awx_job_template" "example" {
 - `allow_simultaneous` (Boolean)
 - `ask_credential_on_launch` (Boolean)
 - `ask_diff_mode_on_launch` (Boolean)
+- `ask_execution_environment_on_launch` (Boolean)
+- `ask_forks_on_launch` (Boolean)
+- `ask_instance_group_on_launch` (Boolean)
 - `ask_inventory_on_launch` (Boolean) Defaults to false. Whether to ask for inventory on launch. If set to false, `inventory_id` must be set.
+- `ask_job_slice_count_on_launch` (Boolean)
 - `ask_job_type_on_launch` (Boolean)
+- `ask_labels_on_launch` (Boolean)
 - `ask_limit_on_launch` (Boolean)
+- `ask_scm_branch_on_launch` (Boolean)
 - `ask_skip_tags_on_launch` (Boolean)
 - `ask_tags_on_launch` (Boolean)
+- `ask_timeout_on_launch` (Boolean)
 - `ask_variables_on_launch` (Boolean)
 - `ask_verbosity_on_launch` (Boolean)
 - `become_enabled` (Boolean)
@@ -71,9 +78,11 @@ resource "awx_job_template" "example" {
 - `forks` (Number) The number of forks to associate with the job template.
 - `host_config_key` (String)
 - `inventory_id` (String) The inventory ID to associate with the job template. If not set, `ask_inventory_on_launch` must be true.
+- `job_slice_count` (Number)
 - `job_tags` (String) The job tags to associate with the job template.
 - `limit` (String) The limit to apply to filter hosts that run on this job template.
 - `playbook` (String) The playbook to associate with the job template.
+- `scm_branch` (String)
 - `skip_tags` (String) The tags to skip on the job template.
 - `start_at_task` (String) The task to start at on the job template.
 - `survey_enabled` (Boolean)
