@@ -43,6 +43,7 @@ provider "awx_with_token" {
 
 - `ca_pem` (String) Path to a CA Certificate in PEM format to be used to verify the server
 - `hostname` (String)
+- `http_headers` (Map of String, Sensitive) Optional. HTTP headers mapping keys to values used for accessing the AWX Api.
 - `insecure` (Boolean) Disable SSL verification of API calls
 - `password` (String, Sensitive)
 - `token` (String, Sensitive)
