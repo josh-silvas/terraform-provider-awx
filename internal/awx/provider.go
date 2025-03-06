@@ -51,6 +51,13 @@ func Provider() *schema.Provider { //nolint:funlen
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("AWX_TOKEN", ""),
 			},
+			"http_headers": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Sensitive:   true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "Optional. HTTP headers mapping keys to values used for accessing the AWX Api.",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"awx_credential_azure_key_vault":                          resourceCredentialAzureKeyVault(),
@@ -125,6 +132,18 @@ func Provider() *schema.Provider { //nolint:funlen
 	}
 }
 
+type HeadersRoundTripper struct {
+	r       http.RoundTripper
+	headers map[string]string
+}
+
+func (hrt HeadersRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	for header, value := range hrt.headers {
+		r.Header.Set(header, value)
+	}
+	return hrt.r.RoundTrip(r)
+}
+
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	hostname := d.Get("hostname").(string)
 	username := d.Get("username").(string)
@@ -132,18 +151,21 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	token := d.Get("token").(string)
 	caPem := d.Get("ca_pem").(string)
 
+	headers := map[string]string{}
+	if httpHeaders, ok := d.GetOk("http_headers"); ok {
+		for k, v := range httpHeaders.(map[string]interface{}) {
+			headers[k] = v.(string)
+		}
+	}
+
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	client := http.DefaultClient
+	customTransport := http.DefaultTransport.(*http.Transport).Clone()
 	if d.Get("insecure").(bool) {
-		customTransport := http.DefaultTransport.(*http.Transport).Clone()
 		//nolint:gosec
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		client.Transport = customTransport
 	} else if caPem != "" {
-		customTransport := http.DefaultTransport.(*http.Transport).Clone()
-
 		certPool := x509.NewCertPool()
 		if caCertPem, err := os.ReadFile(caPem); err != nil {
 			diags = append(diags, diag.Diagnostic{
@@ -161,7 +183,10 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 			return nil, diags
 		}
 		customTransport.TLSClientConfig = &tls.Config{RootCAs: certPool, MinVersion: tls.VersionTLS12}
-		client.Transport = customTransport
+	}
+
+	client := &http.Client{
+		Transport: HeadersRoundTripper{r: customTransport, headers: headers},
 	}
 
 	var c *awx.AWX
