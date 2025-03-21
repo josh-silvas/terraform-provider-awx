@@ -890,7 +890,7 @@ type WorkflowJobTemplateNode struct {
 	JobTags                string    `json:"job_tags"`
 	SkipTags               string    `json:"skip_tags"`
 	Limit                  string    `json:"limit"`
-	DiffMode               string    `json:"diff_mode"`
+	DiffMode               bool      `json:"diff_mode"`
 	Verbosity              int       `json:"verbosity"`
 	WorkflowJobTemplate    int       `json:"workflow_job_template"`
 	UnifiedJobTemplate     int       `json:"unified_job_template"`
