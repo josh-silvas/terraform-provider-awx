@@ -9,6 +9,8 @@ on:
       - "README.md"
       - "develop/README.md"
   push:
+    branches:
+      - "main"
     paths-ignore:
       - "README.md"
       - "develop/README.md"
@@ -16,6 +18,7 @@ on:
 # Testing only needs permissions to read the repository contents.
 permissions:
   contents: "read"
+  checks: "write" # allow write access to checks to allow the linter to annotate code in the PR.
 
 jobs:
   # Ensure project builds before running testing matrix
@@ -31,11 +34,10 @@ jobs:
           cache: true
       - run: "go build -v ."
       - name: "Run Linting Process"
-        uses: "golangci/golangci-lint-action@639cd343e1d3b897ff35927a75193d57cfcba299" # v3.6.0
+        uses: "golangci/golangci-lint-action@2226d7cb06a077cd73e56eedd38eecad18e5d837" # v6.5.0
         with:
           version: "latest"
-          skip-pkg-cache: true
-          skip-build-cache: true
+          skip-cache: true
           args: "--config=.golangci.yml"
 
   generate:

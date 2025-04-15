@@ -46,6 +46,9 @@ func resourceCredentialType() *schema.Resource {
 				Description: "Injectors for this credential type.",
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 

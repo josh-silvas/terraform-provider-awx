@@ -47,6 +47,9 @@ func dataSourceCredentialByID() *schema.Resource {
 				Description: "The name of the credential",
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 

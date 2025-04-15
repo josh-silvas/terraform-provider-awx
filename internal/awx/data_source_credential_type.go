@@ -46,6 +46,9 @@ func dataSourceCredentialTypeByID() *schema.Resource {
 				Description: "The injectors of the credential type",
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 

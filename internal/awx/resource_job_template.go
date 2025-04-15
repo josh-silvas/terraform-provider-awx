@@ -136,6 +136,11 @@ func resourceJobTemplate() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"ask_scm_branch_on_launch": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"ask_tags_on_launch": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -158,11 +163,6 @@ func resourceJobTemplate() *schema.Resource {
 				Default:  false,
 			},
 			"ask_credential_on_launch": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-			"ask_scm_branch_on_launch": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -408,6 +408,9 @@ func setJobTemplateResourceData(d *schema.ResourceData, r *awx.JobTemplate) *sch
 	if err := d.Set("ask_limit_on_launch", r.AskLimitOnLaunch); err != nil {
 		fmt.Println("Error setting ask_limit_on_launch", err)
 	}
+	if err := d.Set("ask_scm_branch_on_launch", r.AskScmBranchOnLaunch); err != nil {
+		fmt.Println("Error setting ask_scm_branch_on_launch", err)
+	}
 	if err := d.Set("ask_skip_tags_on_launch", r.AskSkipTagsOnLaunch); err != nil {
 		fmt.Println("Error setting ask_skip_tags_on_launch", err)
 	}
@@ -416,9 +419,6 @@ func setJobTemplateResourceData(d *schema.ResourceData, r *awx.JobTemplate) *sch
 	}
 	if err := d.Set("ask_variables_on_launch", r.AskVariablesOnLaunch); err != nil {
 		fmt.Println("Error setting ask_variables_on_launch", err)
-	}
-	if err := d.Set("ask_scm_branch_on_launch", r.AskScmBranchOnLaunch); err != nil {
-		fmt.Println("Error setting ask_scm_branch_on_launch", err)
 	}
 	if err := d.Set("ask_diff_mode_on_launch", r.AskDiffModeOnLaunch); err != nil {
 		fmt.Println("Error setting ask_diff_mode_on_launch", err)

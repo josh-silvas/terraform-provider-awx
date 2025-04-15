@@ -11,3 +11,11 @@ func AtoiDefault(s string, defaultValue *int) *int {
 	}
 	return &n
 }
+
+// ItoaDefault takes an int pointer and a defaultValue. If the int pointer is nil, defaultValue is returned.
+func ItoaDefault(i *int, defaultValue string) string {
+	if i == nil {
+		return defaultValue
+	}
+	return strconv.Itoa(*i)
+}

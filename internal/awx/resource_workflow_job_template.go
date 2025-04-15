@@ -102,6 +102,9 @@ func resourceWorkflowJobTemplate() *schema.Resource {
 				Default:  "",
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 
@@ -217,7 +220,7 @@ func setWorkflowJobTemplateResourceData(d *schema.ResourceData, r *awx.WorkflowJ
 	if err := d.Set("organization_id", strconv.Itoa(r.Organization)); err != nil {
 		fmt.Println("Error setting organization_id", err)
 	}
-	if err := d.Set("inventory_id", strconv.Itoa(r.Inventory)); err != nil {
+	if err := d.Set("inventory_id", utils.ItoaDefault(r.Inventory, "")); err != nil {
 		fmt.Println("Error setting inventory_id", err)
 	}
 	if err := d.Set("survey_enabled", r.SurveyEnabled); err != nil {

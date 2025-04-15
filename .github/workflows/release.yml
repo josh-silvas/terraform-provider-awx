@@ -28,9 +28,11 @@ jobs:
       - name: "Git Push Release Tag"
         run: |
           export VERSION=$(cat VERSION)
-          echo "Publishing tag $VERSION for release."
+          gh auth setup-git
           git tag $VERSION
-          git push https://git:${{ secrets.GITHUB_TOKEN }}@github.com/josh-silvas/terraform-provider-awx $VERSION
+          git push origin $VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   goreleaser:
     runs-on: "ubuntu-latest"
