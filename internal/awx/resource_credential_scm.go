@@ -57,6 +57,9 @@ func resourceCredentialSCM() *schema.Resource {
 				Description: "The SSH key unlock for the credential.",
 			},
 		},
+        Importer: &schema.ResourceImporter{
+            StateContext: schema.ImportStatePassthroughContext,
+        },
 	}
 }
 
