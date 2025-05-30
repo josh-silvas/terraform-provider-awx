@@ -132,7 +132,7 @@ func resourceCredentialContainerRegistryRead(_ context.Context, d *schema.Resour
 	if err := d.Set("username", cred.Inputs["username"]); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("password", cred.Inputs["password"]); err != nil {
+	if err := setSanitizedEncryptedCredential(d, "password", cred); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := d.Set("host", cred.Inputs["host"]); err != nil {

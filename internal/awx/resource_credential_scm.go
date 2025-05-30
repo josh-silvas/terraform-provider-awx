@@ -121,35 +121,13 @@ func resourceCredentialSCMRead(_ context.Context, d *schema.ResourceData, m inte
 	if err := d.Set("username", cred.Inputs["username"]); err != nil {
 		return diag.FromErr(err)
 	}
-	// The AWX API returns '$encrypted$' in place of the password/ssh_key_data. We do not want to write that placeholder to the
-	// Terraform state file as it would break diffing and cause the SCM credential to be recreated on every apply.
-	if cred.Inputs["password"] == "$encrypted$" {
-		statePassword := d.Get("password").(string)
-		if statePassword == "$encrypted$" {
-			statePassword = "UPDATE_ME"
-		}
-		if err := d.Set("password", statePassword); err != nil {
-			return diag.FromErr(err)
-		}
-	} else {
-		if err := d.Set("password", cred.Inputs["password"]); err != nil {
-			return diag.FromErr(err)
-		}
+	if err := setSanitizedEncryptedCredential(d, "password", cred); err != nil {
+		return diag.FromErr(err)
 	}
-	if cred.Inputs["ssh_key_data"] == "$encrypted$" {
-		statePassword := d.Get("ssh_key_data").(string)
-		if statePassword == "$encrypted$" {
-			statePassword = "UPDATE_ME"
-		}
-		if err := d.Set("ssh_key_data", statePassword); err != nil {
-			return diag.FromErr(err)
-		}
-	} else {
-		if err := d.Set("ssh_key_data", cred.Inputs["ssh_key_data"]); err != nil {
-			return diag.FromErr(err)
-		}
+	if err := setSanitizedEncryptedCredential(d, "ssh_key_data", cred); err != nil {
+		return diag.FromErr(err)
 	}
-	if err := d.Set("ssh_key_unlock", cred.Inputs["ssh_key_unlock"]); err != nil {
+	if err := setSanitizedEncryptedCredential(d, "ssh_key_unlock", cred); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := d.Set("organization_id", cred.OrganizationID); err != nil {

@@ -116,7 +116,7 @@ func resourceCredentialVaultRead(_ context.Context, d *schema.ResourceData, m in
 	if err := d.Set("organization_id", cred.OrganizationID); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("vault_password", cred.Inputs["vault_password"]); err != nil {
+	if err := setSanitizedEncryptedCredential(d, "vault_password", cred); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := d.Set("vault_id", cred.Inputs["vault_id"]); err != nil {

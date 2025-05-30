@@ -98,7 +98,7 @@ func resourceCredentialGitlabRead(_ context.Context, d *schema.ResourceData, m i
 	if err := d.Set("description", cred.Description); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("token", cred.Inputs["token"]); err != nil {
+	if err := setSanitizedEncryptedCredential(d, "token", cred); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := d.Set("organization_id", cred.OrganizationID); err != nil {

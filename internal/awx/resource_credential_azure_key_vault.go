@@ -110,7 +110,7 @@ func resourceCredentialAzureKeyVaultRead(_ context.Context, d *schema.ResourceDa
 	if err := d.Set("client", cred.Inputs["client"]); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("secret", d.Get("secret").(string)); err != nil {
+	if err := setSanitizedEncryptedCredential(d, "secret", cred); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := d.Set("tenant", cred.Inputs["tenant"]); err != nil {
