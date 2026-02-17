@@ -152,13 +152,3 @@ func resourceCredentialDelete(_ context.Context, d *schema.ResourceData, m inter
 
 	return diag.Diagnostics{}
 }
-
-// suppressCredentialInputsDiff suppresses diffs when AWX returns encrypted placeholders
-//func suppressCredentialInputsDiff(k, old, new string, d *schema.ResourceData) bool {
-//	// AWX returns "$encrypted$" for sensitive credential inputs
-//	// Suppress diff if old value contains this placeholder
-//	if old == "$encrypted$" {
-//		return true
-//	}
-//	return false
-//}
