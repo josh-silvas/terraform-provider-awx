@@ -34,31 +34,31 @@ func setSanitizedEncryptedCredential(d *schema.ResourceData, fieldName string, c
 }
 
 // suppressValueDiff suppresses diffs for setting values when AWX returns encrypted placeholders
-func suppressValueDiff(k, old, new string, d *schema.ResourceData) bool {
-	// If the old value contains $encrypted$, AWX has masked the secret
+func suppressValueDiff(k, oldVal, newVal string, d *schema.ResourceData) bool {
+	// If the oldVal value contains $encrypted$, AWX has masked the secret
 	// Suppress the diff since we can't compare the actual values
-	if strings.Contains(old, "$encrypted$") {
+	if strings.Contains(oldVal, "$encrypted$") {
 		return true
 	}
 
 	// For non-secret values, use the standard JSON comparison
-	return SuppressEquivalentJSONDiffs(k, old, new, d)
+	return SuppressEquivalentJSONDiffs(k, oldVal, newVal, d)
 }
 
 // suppressYAMLDiff suppresses diffs when YAML strings are semantically equivalent
-func suppressYAMLDiff(_, old, new string, _ *schema.ResourceData) bool {
+func suppressYAMLDiff(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 	// If both are empty, they're equivalent
-	if old == "" && new == "" {
+	if oldVal == "" && newVal == "" {
 		return true
 	}
 
 	// Parse both YAML strings and compare the resulting structures
-	oldData := utils.UnmarshalYAML(old)
-	newData := utils.UnmarshalYAML(new)
+	oldData := utils.UnmarshalYAML(oldVal)
+	newData := utils.UnmarshalYAML(newVal)
 
 	// If both failed to parse (both nil), compare as strings
 	if oldData == nil && newData == nil {
-		return old == new
+		return oldVal == newVal
 	}
 
 	// If one parsed and one didn't, they're different
