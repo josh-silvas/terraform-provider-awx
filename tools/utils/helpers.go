@@ -151,7 +151,26 @@ func UnmarshalYAML(str string) map[string]interface{} {
 func MarshalYAML(v interface{}) string {
 	extraDataBytes, err := yaml.Marshal(v)
 	if err != nil {
-		return string(extraDataBytes)
+		return ""
 	}
-	return ""
+	return string(extraDataBytes)
+}
+
+// UnmarshalJSON : Unmarshal the JSON string to map[string]interface{}
+func UnmarshalJSON(str string) map[string]interface{} {
+	asMap := map[string]interface{}{}
+	err := json.Unmarshal([]byte(str), &asMap)
+	if err != nil {
+		asMap = nil
+	}
+	return asMap
+}
+
+// MarshalJSON : Marshal the interface{} to JSON string
+func MarshalJSON(v interface{}) string {
+	jsonBytes, err := json.Marshal(v)
+	if err != nil {
+		return ""
+	}
+	return string(jsonBytes)
 }

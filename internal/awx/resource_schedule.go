@@ -53,10 +53,11 @@ func resourceSchedule() *schema.Resource {
 				Description: "The ID of the Inventory to be used for the schedule",
 			},
 			"extra_data": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "",
-				Description: "Extra data to be pass for the schedule (YAML format)",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Default:          "",
+				Description:      "Extra data to be pass for the schedule (JSON format)",
+				DiffSuppressFunc: SuppressEquivalentJSONDiffs,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -76,7 +77,7 @@ func resourceScheduleCreate(ctx context.Context, d *schema.ResourceData, m inter
 		"unified_job_template": d.Get("unified_job_template_id").(int),
 		"description":          d.Get("description").(string),
 		"enabled":              d.Get("enabled").(bool),
-		"extra_data":           utils.UnmarshalYAML(d.Get("extra_data").(string)),
+		"extra_data":           utils.UnmarshalJSON(d.Get("extra_data").(string)),
 	}
 	if _, ok := d.GetOk("inventory"); ok {
 		scheduleData["inventory"] = d.Get("inventory").(int)
@@ -115,7 +116,7 @@ func resourceScheduleUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		"unified_job_template": d.Get("unified_job_template_id").(int),
 		"description":          d.Get("description").(string),
 		"enabled":              d.Get("enabled").(bool),
-		"extra_data":           utils.UnmarshalYAML(d.Get("extra_data").(string)),
+		"extra_data":           utils.UnmarshalJSON(d.Get("extra_data").(string)),
 	}
 	if _, ok := d.GetOk("inventory"); ok {
 		payload["inventory"] = d.Get("inventory").(int)
@@ -177,7 +178,7 @@ func setScheduleResourceData(d *schema.ResourceData, r *awx.Schedule) *schema.Re
 	if err := d.Set("inventory", r.Inventory); err != nil {
 		fmt.Println("Error setting inventory", err)
 	}
-	if err := d.Set("extra_data", utils.MarshalYAML(r.ExtraData)); err != nil {
+	if err := d.Set("extra_data", utils.MarshalJSON(r.ExtraData)); err != nil {
 		fmt.Println("Error setting extra_data", err)
 	}
 	d.SetId(strconv.Itoa(r.ID))

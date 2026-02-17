@@ -63,7 +63,7 @@ EOL
 
 - `description` (String) Description of the schedule
 - `enabled` (Boolean) Enable or disable the schedule
-- `extra_data` (String) Extra data to be pass for the schedule (YAML format)
+- `extra_data` (String) Extra data to be pass for the schedule (JSON format)
 - `inventory` (Number) The ID of the Inventory to be used for the schedule
 
 ### Read-Only
