@@ -47,15 +47,17 @@ func resourceNotificationTemplate() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Default:     nil,
+				MaxItems:    1,
 				Description: "Notification configuration settings based on the notification type.",
 				// documented at OPTIONS /api/v2/notification_templates/
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// generic settings (re-used across notification types)
 						"password": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "HTTP or SMTP password.",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      "HTTP or SMTP password.",
+							DiffSuppressFunc: suppressValueDiff,
 						},
 						"port": {
 							Type:        schema.TypeInt,
@@ -63,9 +65,10 @@ func resourceNotificationTemplate() *schema.Resource {
 							Description: "SMTP or IRC server port.",
 						},
 						"token": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Slack or PagerDuty authentication token.",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      "Slack or PagerDuty authentication token.",
+							DiffSuppressFunc: suppressValueDiff,
 						},
 						"username": {
 							Type:        schema.TypeString,
@@ -127,9 +130,10 @@ func resourceNotificationTemplate() *schema.Resource {
 							Description: "Twilio account SID",
 						},
 						"account_token": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Twilio account token",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      "Twilio account token",
+							DiffSuppressFunc: suppressValueDiff,
 						},
 						"from_number": {
 							Type:        schema.TypeString,
@@ -151,9 +155,10 @@ func resourceNotificationTemplate() *schema.Resource {
 							Description: "PagerDuty client name",
 						},
 						"service_key": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "PagerDuty service key",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      "PagerDuty service key",
+							DiffSuppressFunc: suppressValueDiff,
 						},
 						"subdomain": {
 							Type:        schema.TypeString,
@@ -162,9 +167,10 @@ func resourceNotificationTemplate() *schema.Resource {
 						},
 						// grafana notification-type settings
 						"grafana_key": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Grafana API key",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      "Grafana API key",
+							DiffSuppressFunc: suppressValueDiff,
 						},
 						"grafana_url": {
 							Type:        schema.TypeString,
@@ -365,12 +371,51 @@ func setNotificationTemplateResourceData(d *schema.ResourceData, r *awx.Notifica
 	if err := d.Set("notification_type", r.NotificationType); err != nil {
 		fmt.Println("Error setting notification_type", err)
 	}
-	if err := d.Set("notification_configuration", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{r.NotificationConfiguration})); err != nil {
+
+	// Sanitize encrypted fields in notification_configuration
+	sanitizedConfig := sanitizeNotificationConfiguration(d, r.NotificationConfiguration)
+	if err := d.Set("notification_configuration", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{sanitizedConfig})); err != nil {
 		fmt.Println("Error setting notification_configuration", err)
 	}
+
 	if err := d.Set("messages", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{r.Messages})); err != nil {
 		fmt.Println("Error setting messages", err)
 	}
 	d.SetId(strconv.Itoa(r.ID))
 	return d
+}
+
+// sanitizeNotificationConfiguration replaces $encrypted$ values with the original values from state
+func sanitizeNotificationConfiguration(d *schema.ResourceData, config map[string]interface{}) map[string]interface{} {
+	// List of fields that may contain encrypted values
+	encryptedFields := []string{"password", "token", "account_token", "service_key", "grafana_key"}
+
+	// Get the current state configuration
+	stateConfigSet := d.Get("notification_configuration").(*schema.Set).List()
+	var stateConfig map[string]interface{}
+	if len(stateConfigSet) > 0 {
+		stateConfig = stateConfigSet[0].(map[string]interface{})
+	}
+
+	// Create a copy of the config to avoid modifying the original
+	sanitized := make(map[string]interface{})
+	for k, v := range config {
+		sanitized[k] = v
+	}
+
+	// Replace $encrypted$ values with original state values
+	for _, field := range encryptedFields {
+		if val, ok := sanitized[field]; ok {
+			if strVal, isString := val.(string); isString && strVal == "$encrypted$" {
+				// Use the value from state instead of $encrypted$
+				if stateConfig != nil {
+					if stateVal, exists := stateConfig[field]; exists {
+						sanitized[field] = stateVal
+					}
+				}
+			}
+		}
+	}
+
+	return sanitized
 }
