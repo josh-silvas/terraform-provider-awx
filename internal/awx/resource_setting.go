@@ -31,7 +31,7 @@ func resourceSetting() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				Description:      "Value to be modified for given setting.",
-				DiffSuppressFunc: SuppressEquivalentJSONDiffs,
+				DiffSuppressFunc: suppressValueDiff,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -97,12 +97,25 @@ func resourceSettingRead(_ context.Context, d *schema.ResourceData, m interface{
 		return diag.FromErr(err)
 	}
 
-	val, err := (*res)[d.Id()].MarshalJSON()
+	rawValue := (*res)[d.Id()]
+	val, err := rawValue.MarshalJSON()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("value", string(val)); err != nil {
-		return diag.FromErr(err)
+
+	// Check if the value is a plain string (starts and ends with quotes)
+	// If so, unmarshal it to get the actual string without extra quotes
+	var strValue string
+	if err := json.Unmarshal(val, &strValue); err == nil {
+		// Successfully unmarshaled as string, use the plain string
+		if err := d.Set("value", strValue); err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		// Not a plain string (object/array), keep the JSON representation
+		if err := d.Set("value", string(val)); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 	return nil
 }

@@ -58,10 +58,11 @@ func resourceWorkflowJobTemplateSchedule() *schema.Resource {
 				Description: "Inventory applied as a prompt, assuming job template prompts for inventory (id, default=``)",
 			},
 			"extra_data": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "",
-				Description: "Extra data to be pass for the schedule (YAML format)",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Default:          "",
+				Description:      "Extra data to be pass for the schedule (YAML format)",
+				DiffSuppressFunc: suppressYAMLDiff,
 			},
 		},
 	}

@@ -25,7 +25,7 @@ Resource `awx_notification_template` manages notification templates within an AW
 
 - `description` (String) The description of the notification template.
 - `messages` (Block Set) The description of the notification template. Options are `started`, `success`, `error`. (see [below for nested schema](#nestedblock--messages))
-- `notification_configuration` (Block Set) Notification configuration settings based on the notification type. (see [below for nested schema](#nestedblock--notification_configuration))
+- `notification_configuration` (Block Set, Max: 1) Notification configuration settings based on the notification type. (see [below for nested schema](#nestedblock--notification_configuration))
 
 ### Read-Only
 

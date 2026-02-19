@@ -41,10 +41,11 @@ func resourceCredential() *schema.Resource {
 				Description: "Specify the type of credential you want to create. Refer to the Ansible Tower documentation for details on each type",
 			},
 			"inputs": {
-				Type:        schema.TypeMap,
-				Required:    true,
-				Sensitive:   true,
-				Description: "The inputs to be created with the credential.",
+				Type:             schema.TypeMap,
+				Required:         true,
+				Sensitive:        true,
+				Description:      "The inputs to be created with the credential.",
+				DiffSuppressFunc: suppressValueDiff,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -93,6 +94,9 @@ func resourceCredentialRead(_ context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 	if err := d.Set("organization_id", cred.OrganizationID); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("credential_type_id", cred.CredentialTypeID); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := d.Set("inputs", cred.Inputs); err != nil {
