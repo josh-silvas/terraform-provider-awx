@@ -178,27 +178,24 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	if d.Get("insecure").(bool) {
 		//nolint:gosec
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	} else if caPem != "" {
+	} else if caPem != "" || caPemValue != "" {
 		certPool := x509.NewCertPool()
-		if caCertPem, err := os.ReadFile(caPem); err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Unable to read file",
-				Detail:   fmt.Sprintf("Unable to read certificate file located at %s.", caPem),
-			})
-			return nil, diags
-		} else if ok := certPool.AppendCertsFromPEM(caCertPem); !ok {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Unable to parse certificate.",
-				Detail:   "Unable to parse certificate. Check that the certificate is in a valid PEM format.",
-			})
-			return nil, diags
+		var caCertPem []byte
+		var err error
+		if caPem != "" {
+			caCertPem, err = os.ReadFile(caPem)
+			if err != nil {
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  "Unable to read file",
+					Detail:   fmt.Sprintf("Unable to read certificate file located at %s.", caPem),
+				})
+				return nil, diags
+			}
+		} else {
+			caCertPem = []byte(caPemValue)
 		}
-		customTransport.TLSClientConfig = &tls.Config{RootCAs: certPool, MinVersion: tls.VersionTLS12}
-	} else if caPemValue != "" {
-		certPool := x509.NewCertPool()
-		if ok := certPool.AppendCertsFromPEM([]byte(caPemValue)); !ok {
+		if ok := certPool.AppendCertsFromPEM(caCertPem); !ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  "Unable to parse certificate.",
