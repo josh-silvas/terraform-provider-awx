@@ -34,6 +34,12 @@ func Provider() *schema.Provider { //nolint:funlen
 				Default:     "",
 				Description: "Path to a CA Certificate in PEM format to be used to verify the server",
 			},
+			"ca_pem_value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "CA Certificate value in PEM format to be used to verify the server",
+			},
 			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -156,6 +162,7 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	password := d.Get("password").(string)
 	token := d.Get("token").(string)
 	caPem := d.Get("ca_pem").(string)
+	caPemValue := d.Get("ca_pem_value").(string)
 
 	headers := map[string]string{}
 	if httpHeaders, ok := d.GetOk("http_headers"); ok {
@@ -181,6 +188,17 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 			})
 			return nil, diags
 		} else if ok := certPool.AppendCertsFromPEM(caCertPem); !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Unable to parse certificate.",
+				Detail:   "Unable to parse certificate. Check that the certificate is in a valid PEM format.",
+			})
+			return nil, diags
+		}
+		customTransport.TLSClientConfig = &tls.Config{RootCAs: certPool, MinVersion: tls.VersionTLS12}
+	} else if caPemValue != "" {
+		certPool := x509.NewCertPool()
+		if ok := certPool.AppendCertsFromPEM([]byte(caPemValue)); !ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  "Unable to parse certificate.",
