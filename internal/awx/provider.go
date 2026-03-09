@@ -34,6 +34,12 @@ func Provider() *schema.Provider { //nolint:funlen
 				Default:     "",
 				Description: "Path to a CA Certificate in PEM format to be used to verify the server",
 			},
+			"ca_pem_value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "CA Certificate value in PEM format to be used to verify the server",
+			},
 			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -156,6 +162,7 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	password := d.Get("password").(string)
 	token := d.Get("token").(string)
 	caPem := d.Get("ca_pem").(string)
+	caPemValue := d.Get("ca_pem_value").(string)
 
 	headers := map[string]string{}
 	if httpHeaders, ok := d.GetOk("http_headers"); ok {
@@ -171,16 +178,24 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	if d.Get("insecure").(bool) {
 		//nolint:gosec
 		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	} else if caPem != "" {
+	} else if caPem != "" || caPemValue != "" {
 		certPool := x509.NewCertPool()
-		if caCertPem, err := os.ReadFile(caPem); err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Unable to read file",
-				Detail:   fmt.Sprintf("Unable to read certificate file located at %s.", caPem),
-			})
-			return nil, diags
-		} else if ok := certPool.AppendCertsFromPEM(caCertPem); !ok {
+		var caCertPem []byte
+		var err error
+		if caPem != "" {
+			caCertPem, err = os.ReadFile(caPem)
+			if err != nil {
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  "Unable to read file",
+					Detail:   fmt.Sprintf("Unable to read certificate file located at %s.", caPem),
+				})
+				return nil, diags
+			}
+		} else {
+			caCertPem = []byte(caPemValue)
+		}
+		if ok := certPool.AppendCertsFromPEM(caCertPem); !ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  "Unable to parse certificate.",
