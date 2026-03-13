@@ -165,11 +165,15 @@ func setExecutionEnvironmentsResourceData(d *schema.ResourceData, r *awx.Executi
 	if err := d.Set("description", r.Description); err != nil {
 		fmt.Println("Error setting description", err)
 	}
-	if err := d.Set("organization", r.Organization); err != nil {
-		fmt.Println("Error setting organization", err)
+	if r.Organization != 0 {
+		if err := d.Set("organization", strconv.Itoa(r.Organization)); err != nil {
+			fmt.Println("Error setting organization", err)
+		}
 	}
-	if err := d.Set("credential", r.Credential); err != nil {
-		fmt.Println("Error setting credential", err)
+	if r.Credential != 0 {
+		if err := d.Set("credential", strconv.Itoa(r.Credential)); err != nil {
+			fmt.Println("Error setting credential", err)
+		}
 	}
 	if err := d.Set("pull", r.Pull); err != nil {
 		fmt.Println("Error setting pull", err)
