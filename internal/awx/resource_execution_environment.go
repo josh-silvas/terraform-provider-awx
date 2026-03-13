@@ -24,6 +24,10 @@ func resourceExecutionEnvironment() *schema.Resource {
 		UpdateContext: resourceExecutionEnvironmentsUpdate,
 		DeleteContext: resourceExecutionEnvironmentsDelete,
 
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
