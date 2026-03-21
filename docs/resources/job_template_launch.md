@@ -56,11 +56,21 @@ resource "awx_job_template_launch" "now" {
 - `extra_vars` (String) Override job template variables. YAML or JSON values are supported.
 - `inventory_id` (Number) Override Inventory ID. Required ask_inventory_on_launch set on job_template.
 - `limit` (String) List of comma delimited hosts to limit job execution. Required ask_limit_on_launch set on job_template.
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `wait_for_completion` (Boolean) Resource creation will wait for job completion.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String)
+- `delete` (String)
+- `update` (String)
 
 ## Import
 
