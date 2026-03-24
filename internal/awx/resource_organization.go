@@ -67,7 +67,7 @@ func resourceOrganizationsCreate(ctx context.Context, d *schema.ResourceData, m 
 		"name":                d.Get("name").(string),
 		"description":         d.Get("description").(string),
 		"max_hosts":           d.Get("max_hosts").(int),
-		"custom_virtualenv":   d.Get("description").(string),
+		"custom_virtualenv":   d.Get("custom_virtualenv").(string),
 		"default_environment": d.Get("default_environment").(string),
 	}, map[string]string{})
 	if err != nil {
@@ -94,7 +94,7 @@ func resourceOrganizationsUpdate(ctx context.Context, d *schema.ResourceData, m 
 		"name":                d.Get("name").(string),
 		"description":         d.Get("description").(string),
 		"max_hosts":           d.Get("max_hosts").(int),
-		"custom_virtualenv":   d.Get("description").(string),
+		"custom_virtualenv":   d.Get("custom_virtualenv").(string),
 		"default_environment": d.Get("default_environment").(string),
 	}, map[string]string{}); err != nil {
 		return utils.DiagUpdate(diagOrganizationTitle, id, err)
