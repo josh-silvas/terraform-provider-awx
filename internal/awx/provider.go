@@ -124,6 +124,7 @@ func Provider() *schema.Provider { //nolint:funlen
 			"awx_credential_type":            dataSourceCredentialTypeByID(),
 			"awx_credentials":                dataSourceCredentials(),
 			"awx_execution_environment":      dataSourceExecutionEnvironment(),
+			"awx_instance_group":             dataSourceInstanceGroup(),
 			"awx_inventory_group":            dataSourceInventoryGroup(),
 			"awx_inventory":                  dataSourceInventory(),
 			"awx_inventory_role":             dataSourceInventoryRole(),
