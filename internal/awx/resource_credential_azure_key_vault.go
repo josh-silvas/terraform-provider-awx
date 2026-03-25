@@ -10,6 +10,8 @@ import (
 	"github.com/josh-silvas/terraform-provider-awx/tools/utils"
 )
 
+const azureKeyVaultCredentialTypeName = "Microsoft Azure Key Vault" //nolint:gosec
+
 func resourceCredentialAzureKeyVault() *schema.Resource {
 	return &schema.Resource{
 		Description:   "The `awx_credential_azure_key_vault` resource allows you to manage Azure Key Vault credentials in Ansible AWX.",
@@ -17,6 +19,9 @@ func resourceCredentialAzureKeyVault() *schema.Resource {
 		ReadContext:   resourceCredentialAzureKeyVaultRead,
 		UpdateContext: resourceCredentialAzureKeyVaultUpdate,
 		DeleteContext: resourceCredentialDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -59,11 +64,17 @@ func resourceCredentialAzureKeyVault() *schema.Resource {
 }
 
 func resourceCredentialAzureKeyVaultCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*awx.AWX)
+	credType, err := client.CredentialTypeService.GetCredentialTypeByName(azureKeyVaultCredentialTypeName, map[string]string{})
+	if err != nil {
+		return utils.DiagCreate("Azure Key Vault Credential", err)
+	}
+
 	payload := map[string]interface{}{
 		"name":            d.Get("name").(string),
 		"description":     d.Get("description").(string),
 		"organization":    d.Get("organization_id").(int),
-		"credential_type": 19, // Azure Key Vault
+		"credential_type": credType.ID,
 		"inputs": map[string]interface{}{
 			"url":    d.Get("url").(string),
 			"client": d.Get("client").(string),
@@ -72,7 +83,6 @@ func resourceCredentialAzureKeyVaultCreate(ctx context.Context, d *schema.Resour
 		},
 	}
 
-	client := m.(*awx.AWX)
 	cred, err := client.CredentialsService.CreateCredentials(payload, map[string]string{})
 	if err != nil {
 		return utils.DiagCreate("Azure Key Vault Credential", err)
@@ -135,11 +145,16 @@ func resourceCredentialAzureKeyVaultUpdate(ctx context.Context, d *schema.Resour
 		if err != nil {
 			return utils.DiagUpdate("Azure Key Vault Credential", d.Id(), err)
 		}
+		client := m.(*awx.AWX)
+		credType, err := client.CredentialTypeService.GetCredentialTypeByName(azureKeyVaultCredentialTypeName, map[string]string{})
+		if err != nil {
+			return utils.DiagUpdate("Azure Key Vault Credential", d.Id(), err)
+		}
 		payload := map[string]interface{}{
 			"name":            d.Get("name").(string),
 			"description":     d.Get("description").(string),
 			"organization":    d.Get("organization_id").(int),
-			"credential_type": 19, // Azure Key Vault
+			"credential_type": credType.ID,
 			"inputs": map[string]interface{}{
 				"url":    d.Get("url").(string),
 				"client": d.Get("client").(string),
@@ -147,7 +162,6 @@ func resourceCredentialAzureKeyVaultUpdate(ctx context.Context, d *schema.Resour
 				"tenant": d.Get("tenant").(string),
 			},
 		}
-		client := m.(*awx.AWX)
 		if _, err = client.CredentialsService.UpdateCredentialsByID(id, payload, map[string]string{}); err != nil {
 			return utils.DiagUpdate("Azure Key Vault Credential", d.Id(), err)
 		}
