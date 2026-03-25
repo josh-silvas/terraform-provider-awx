@@ -139,6 +139,7 @@ func Provider() *schema.Provider { //nolint:funlen
 			"awx_workflow_job_template":      dataSourceWorkflowJobTemplate(),
 			"awx_workflow_job_template_role": dataSourceWorkflowJobTemplateRole(),
 			"awx_team":                       dataSourceTeam(),
+			"awx_team_role":                  dataSourceTeamRole(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
