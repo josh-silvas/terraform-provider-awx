@@ -19,6 +19,9 @@ func resourceCredentialGoogleComputeEngine() *schema.Resource {
 		ReadContext:   resourceCredentialGoogleComputeEngineRead,
 		UpdateContext: resourceCredentialGoogleComputeEngineUpdate,
 		DeleteContext: resourceCredentialDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
