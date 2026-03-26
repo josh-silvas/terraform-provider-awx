@@ -44,3 +44,5 @@ develop/.env
 develop/terraform-provider-*
 
 test.go
+
+local/
