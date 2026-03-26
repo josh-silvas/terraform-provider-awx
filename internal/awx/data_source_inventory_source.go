@@ -120,6 +120,9 @@ func dataSourceInventorySourceRead(_ context.Context, d *schema.ResourceData, m 
 	}
 
 	d = setInventorySourceResourceData(d, res)
+	if err := d.Set("inventory_source_id", id); err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(strconv.Itoa(id))
 	return nil
 }
