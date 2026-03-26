@@ -18,6 +18,9 @@ func resourceCredentialMachine() *schema.Resource {
 		ReadContext:   resourceCredentialMachineRead,
 		UpdateContext: resourceCredentialMachineUpdate,
 		DeleteContext: resourceCredentialDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -150,7 +153,7 @@ func resourceCredentialMachineRead(_ context.Context, d *schema.ResourceData, m 
 	if err := setSanitizedEncryptedCredential(d, "ssh_key_data", cred); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := setSanitizedEncryptedCredential(d, "ssh_public_key_data", cred); err != nil {
+	if err := d.Set("ssh_public_key_data", cred.Inputs["ssh_public_key_data"]); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := setSanitizedEncryptedCredential(d, "ssh_key_unlock", cred); err != nil {

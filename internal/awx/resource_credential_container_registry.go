@@ -19,6 +19,9 @@ func resourceCredentialContainerRegistry() *schema.Resource {
 		ReadContext:   resourceCredentialContainerRegistryRead,
 		UpdateContext: resourceCredentialContainerRegistryUpdate,
 		DeleteContext: resourceCredentialDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -138,8 +141,10 @@ func resourceCredentialContainerRegistryRead(_ context.Context, d *schema.Resour
 	if err := d.Set("host", cred.Inputs["host"]); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("verify_ssl", cred.Inputs["verify_ssl"]); err != nil {
-		return diag.FromErr(err)
+	if v, ok := cred.Inputs["verify_ssl"]; ok {
+		if err := d.Set("verify_ssl", v); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return diags
