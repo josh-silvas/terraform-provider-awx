@@ -14,8 +14,7 @@ import (
 func dataSourceInventorySource() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceInventorySourceRead,
-		Description: "Data source for Inventory Sources in AWX. " +
-			"See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/api_ref.html#/Inventory_Sources",
+		Description: "Data source for Inventory Sources in AWX.",
 		Schema: map[string]*schema.Schema{
 			"inventory_source_id": {
 				Type:        schema.TypeInt,

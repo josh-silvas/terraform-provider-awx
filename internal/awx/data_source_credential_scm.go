@@ -15,8 +15,7 @@ import (
 func dataSourceCredentialSCM() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCredentialSCMRead,
-		Description: "Data source for Source Control credentials in AWX. " +
-			"See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/api_ref.html#/Credentials/Credentials_credentials_read",
+		Description: "Data source for Source Control credentials in AWX.",
 		Schema: map[string]*schema.Schema{
 			"credential_id": {
 				Type:        schema.TypeInt,

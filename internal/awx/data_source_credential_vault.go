@@ -15,8 +15,7 @@ import (
 func dataSourceCredentialVault() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCredentialVaultRead,
-		Description: "Data source for Vault credentials in AWX. " +
-			"See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/api_ref.html#/Credentials/Credentials_credentials_read",
+		Description: "Data source for Vault credentials in AWX.",
 		Schema: map[string]*schema.Schema{
 			"credential_id": {
 				Type:        schema.TypeInt,
