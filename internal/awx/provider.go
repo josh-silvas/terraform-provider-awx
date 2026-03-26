@@ -119,6 +119,10 @@ func Provider() *schema.Provider { //nolint:funlen
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"awx_credential_azure_key_vault": dataSourceCredentialAzure(),
+			"awx_credential_machine":         dataSourceCredentialMachine(),
+			"awx_credential_scm":             dataSourceCredentialSCM(),
+			"awx_credential_vault":           dataSourceCredentialVault(),
+			"awx_inventory_source":           dataSourceInventorySource(),
 			"awx_credential":                 dataSourceCredentialByID(),
 			"awx_credential_role":            dataSourceCredentialMachineRole(),
 			"awx_credential_type":            dataSourceCredentialTypeByID(),
