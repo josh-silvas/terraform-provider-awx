@@ -154,9 +154,8 @@ func resourceInventorySourceCreate(ctx context.Context, d *schema.ResourceData, 
 		"source":                d.Get("source").(string),
 		"source_vars":           d.Get("source_vars").(string),
 		"host_filter":           d.Get("host_filter").(string),
-		"update_cache_timeout":  d.Get("update_cache_timeout").(int),
-		"verbosity":             d.Get("verbosity").(int),
-		"execution_environment": d.Get("execution_environment").(int),
+		"update_cache_timeout": d.Get("update_cache_timeout").(int),
+		"verbosity":            d.Get("verbosity").(int),
 		// obsolete schema added so terraform doesn't break
 		// these don't do anything in later versions of AWX! Update your code.
 		"source_regions":   d.Get("source_regions").(string),
@@ -169,6 +168,9 @@ func resourceInventorySourceCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	if _, ok := d.GetOk("source_project_id"); ok {
 		payload["source_project"] = d.Get("source_project_id").(int)
+	}
+	if _, ok := d.GetOk("execution_environment"); ok {
+		payload["execution_environment"] = d.Get("execution_environment").(int)
 	}
 
 	result, err := client.InventorySourcesService.CreateInventorySource(payload, map[string]string{})
@@ -201,9 +203,8 @@ func resourceInventorySourceUpdate(ctx context.Context, d *schema.ResourceData, 
 		"source":                d.Get("source").(string),
 		"source_vars":           d.Get("source_vars").(string),
 		"host_filter":           d.Get("host_filter").(string),
-		"update_cache_timeout":  d.Get("update_cache_timeout").(int),
-		"verbosity":             d.Get("verbosity").(int),
-		"execution_environment": d.Get("execution_environment").(int),
+		"update_cache_timeout": d.Get("update_cache_timeout").(int),
+		"verbosity":            d.Get("verbosity").(int),
 		// obsolete schema added so terraform doesn't break
 		// these don't do anything in later versions of AWX! Update your code.
 		"source_regions":   d.Get("source_regions").(string),
@@ -216,6 +217,9 @@ func resourceInventorySourceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 	if _, ok := d.GetOk("source_project_id"); ok {
 		payload["source_project"] = d.Get("source_project_id").(int)
+	}
+	if _, ok := d.GetOk("execution_environment"); ok {
+		payload["execution_environment"] = d.Get("execution_environment").(int)
 	}
 
 	if _, err := awxService.UpdateInventorySource(id, payload, nil); err != nil {
