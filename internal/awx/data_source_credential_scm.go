@@ -1,4 +1,3 @@
-// Package awx provides a Terraform provider for Ansible AWX.
 package awx
 
 import (
