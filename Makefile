@@ -81,6 +81,21 @@ build: ## Build the provider for local development
 	@echo "🏁 Complete! Binary is located in develop/terraform-provider-awx."
 .PHONY: build
 
+local-build: ## Build the provider and install for local testing (local/terraform)
+	@echo "🛠️ Building the provider for local testing..."
+	@mkdir -p local/bin
+	@go build -o local/bin/terraform-provider-awx
+	@echo "🏁 Complete! Use 'make local-plan' or 'make local-import' to test."
+.PHONY: local-build
+
+local-plan: local-build ## Run terraform plan against local AWX instance
+	@cd local/terraform && TF_CLI_CONFIG_FILE=.terraformrc terraform plan
+.PHONY: local-plan
+
+local-import: local-build ## Run terraform import - usage: make local-import RESOURCE=awx_credential_machine.test ID=1
+	@cd local/terraform && TF_CLI_CONFIG_FILE=.terraformrc terraform import $(RESOURCE) $(ID)
+.PHONY: local-import
+
 terraform-plan: ## Run terraform plan to test the provider
 	@cd develop && terraform plan
 .PHONY: terraform-plan
