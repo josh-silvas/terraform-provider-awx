@@ -3,12 +3,12 @@
 page_title: "awx_credential_scm Data Source - terraform-provider-awx"
 subcategory: ""
 description: |-
-  Data source for Source Control credentials in AWX. See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/apiref.html#/Credentials/Credentialscredentials_read
+  Data source for Source Control credentials in AWX.
 ---
 
 # awx_credential_scm (Data Source)
 
-Data source for Source Control credentials in AWX. See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/api_ref.html#/Credentials/Credentials_credentials_read
+Data source for Source Control credentials in AWX.
 
 ## Example Usage
 

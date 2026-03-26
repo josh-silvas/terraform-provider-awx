@@ -3,12 +3,12 @@
 page_title: "awx_credential_vault Data Source - terraform-provider-awx"
 subcategory: ""
 description: |-
-  Data source for Vault credentials in AWX. See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/apiref.html#/Credentials/Credentialscredentials_read
+  Data source for Vault credentials in AWX.
 ---
 
 # awx_credential_vault (Data Source)
 
-Data source for Vault credentials in AWX. See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/api_ref.html#/Credentials/Credentials_credentials_read
+Data source for Vault credentials in AWX.
 
 ## Example Usage
 

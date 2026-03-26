@@ -3,12 +3,12 @@
 page_title: "awx_inventory_source Data Source - terraform-provider-awx"
 subcategory: ""
 description: |-
-  Data source for Inventory Sources in AWX. See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/apiref.html#/InventorySources
+  Data source for Inventory Sources in AWX.
 ---
 
 # awx_inventory_source (Data Source)
 
-Data source for Inventory Sources in AWX. See: https://docs.ansible.com/ansible-tower/latest/html/towerapi/api_ref.html#/Inventory_Sources
+Data source for Inventory Sources in AWX.
 
 ## Example Usage
 
