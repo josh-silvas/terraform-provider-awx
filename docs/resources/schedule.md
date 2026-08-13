@@ -43,6 +43,7 @@ resource "awx_schedule" "default" {
   name                    = "schedule-test"
   rrule                   = "DTSTART;TZID=Europe/Paris:20211214T120000 RRULE:INTERVAL=1;FREQ=DAILY"
   unified_job_template_id = awx_job_template.example.id
+  limit                   = "webservers"
   extra_data              = <<EOL
 
 organization_name: testorg
@@ -65,6 +66,7 @@ EOL
 - `enabled` (Boolean) Enable or disable the schedule
 - `extra_data` (String) Extra data to be pass for the schedule (JSON format)
 - `inventory` (Number) The ID of the Inventory to be used for the schedule
+- `limit` (String) Host pattern applied as a prompt, assuming the job template prompts for a limit
 
 ### Read-Only
 
