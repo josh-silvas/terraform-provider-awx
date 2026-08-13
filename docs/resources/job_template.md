@@ -82,6 +82,7 @@ resource "awx_job_template" "example" {
 - `job_tags` (String) The job tags to associate with the job template.
 - `limit` (String) The limit to apply to filter hosts that run on this job template.
 - `playbook` (String) The playbook to associate with the job template.
+- `prevent_instance_group_fallback` (Boolean) Only run the job on instance groups assigned to this job template, without falling back to the inventory or organization instance groups.
 - `scm_branch` (String)
 - `skip_tags` (String) The tags to skip on the job template.
 - `start_at_task` (String) The task to start at on the job template.
