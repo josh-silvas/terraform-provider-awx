@@ -56,7 +56,7 @@ resource "awx_job_template" "example" {
 - `ask_diff_mode_on_launch` (Boolean)
 - `ask_execution_environment_on_launch` (Boolean)
 - `ask_forks_on_launch` (Boolean)
-- `ask_instance_group_on_launch` (Boolean)
+- `ask_instance_groups_on_launch` (Boolean)
 - `ask_inventory_on_launch` (Boolean) Defaults to false. Whether to ask for inventory on launch. If set to false, `inventory_id` must be set.
 - `ask_job_slice_count_on_launch` (Boolean)
 - `ask_job_type_on_launch` (Boolean)
