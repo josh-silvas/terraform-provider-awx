@@ -468,7 +468,12 @@ func setJobTemplateResourceData(d *schema.ResourceData, r *awx.JobTemplate) *sch
 	if err := d.Set("host_config_key", r.HostConfigKey); err != nil {
 		fmt.Println("Error setting host_config_key", err)
 	}
-	if err := d.Set("inventory_id", r.Inventory); err != nil {
+	// AWX returns a null inventory for templates that prompt for one on launch
+	inventoryID := ""
+	if r.Inventory != 0 {
+		inventoryID = strconv.Itoa(r.Inventory)
+	}
+	if err := d.Set("inventory_id", inventoryID); err != nil {
 		fmt.Println("Error setting inventory_id", err)
 	}
 	if err := d.Set("job_tags", r.JobTags); err != nil {

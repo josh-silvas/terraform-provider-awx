@@ -195,7 +195,7 @@ func setWorkflowJobTemplateNodeResourceData(d *schema.ResourceData, r *awx.Workf
 	if err := d.Set("extra_data", r.ExtraData); err != nil {
 		fmt.Println("Error setting extra_data", err)
 	}
-	if err := d.Set("inventory_id", strconv.Itoa(r.Inventory)); err != nil {
+	if err := d.Set("inventory_id", r.Inventory); err != nil {
 		fmt.Println("Error setting inventory_id", err)
 	}
 	if err := d.Set("scm_branch", r.ScmBranch); err != nil {
@@ -220,10 +220,10 @@ func setWorkflowJobTemplateNodeResourceData(d *schema.ResourceData, r *awx.Workf
 		fmt.Println("Error setting verbosity", err)
 	}
 
-	if err := d.Set("workflow_job_template_id", strconv.Itoa(r.WorkflowJobTemplate)); err != nil {
+	if err := d.Set("workflow_job_template_id", r.WorkflowJobTemplate); err != nil {
 		fmt.Println("Error setting workflow_job_template_id", err)
 	}
-	if err := d.Set("unified_job_template_id", strconv.Itoa(r.UnifiedJobTemplate)); err != nil {
+	if err := d.Set("unified_job_template_id", r.UnifiedJobTemplate); err != nil {
 		fmt.Println("Error setting unified_job_template_id", err)
 	}
 	if err := d.Set("all_parents_must_converge", r.AllParentsMustConverge); err != nil {
