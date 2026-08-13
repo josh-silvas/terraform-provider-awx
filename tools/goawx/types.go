@@ -284,6 +284,7 @@ type Inventory struct {
 	InventorySourcesWithFailures int         `json:"inventory_sources_with_failures"`
 	InsightsCredential           interface{} `json:"insights_credential"`
 	PendingDeletion              bool        `json:"pending_deletion"`
+	PreventInstanceGroupFallback bool        `json:"prevent_instance_group_fallback"`
 }
 
 // Credential represents the awx api credential.
@@ -415,6 +416,7 @@ type JobTemplate struct {
 	AskJobSliceCountOnLaunch        bool        `json:"ask_job_slice_count_on_launch"`
 	AskTimeoutOnLaunch              bool        `json:"ask_timeout_on_launch"`
 	AskInstanceGroupsOnLaunch       bool        `json:"ask_instance_groups_on_launch"`
+	PreventInstanceGroupFallback    bool        `json:"prevent_instance_group_fallback"`
 	SurveyEnabled                   bool        `json:"survey_enabled"`
 	BecomeEnabled                   bool        `json:"become_enabled"`
 	DiffMode                        bool        `json:"diff_mode"`

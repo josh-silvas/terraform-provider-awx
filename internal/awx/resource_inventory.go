@@ -55,6 +55,12 @@ func resourceInventory() *schema.Resource {
 				StateFunc:   utils.Normalize,
 				Description: "The variables of the inventory",
 			},
+			"prevent_instance_group_fallback": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Only run jobs on instance groups assigned to this inventory, without falling back to the organization instance groups",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -65,12 +71,13 @@ func resourceInventory() *schema.Resource {
 func resourceInventoryCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*awx.AWX)
 	result, err := client.InventoriesService.CreateInventory(map[string]interface{}{
-		"name":         d.Get("name").(string),
-		"organization": d.Get("organization_id").(string),
-		"description":  d.Get("description").(string),
-		"kind":         d.Get("kind").(string),
-		"host_filter":  d.Get("host_filter").(string),
-		"variables":    d.Get("variables").(string),
+		"name":                            d.Get("name").(string),
+		"organization":                    d.Get("organization_id").(string),
+		"description":                     d.Get("description").(string),
+		"kind":                            d.Get("kind").(string),
+		"host_filter":                     d.Get("host_filter").(string),
+		"variables":                       d.Get("variables").(string),
+		"prevent_instance_group_fallback": d.Get("prevent_instance_group_fallback").(bool),
 	}, map[string]string{})
 	if err != nil {
 		return utils.DiagCreate(diagInventoryTitle, err)
@@ -88,12 +95,13 @@ func resourceInventoryUpdate(ctx context.Context, d *schema.ResourceData, m inte
 		return diags
 	}
 	if _, err := client.InventoriesService.UpdateInventory(id, map[string]interface{}{
-		"name":         d.Get("name").(string),
-		"organization": d.Get("organization_id").(string),
-		"description":  d.Get("description").(string),
-		"kind":         d.Get("kind").(string),
-		"host_filter":  d.Get("host_filter").(string),
-		"variables":    d.Get("variables").(string),
+		"name":                            d.Get("name").(string),
+		"organization":                    d.Get("organization_id").(string),
+		"description":                     d.Get("description").(string),
+		"kind":                            d.Get("kind").(string),
+		"host_filter":                     d.Get("host_filter").(string),
+		"variables":                       d.Get("variables").(string),
+		"prevent_instance_group_fallback": d.Get("prevent_instance_group_fallback").(bool),
 	}, nil); err != nil {
 		return utils.DiagUpdate(diagInventoryTitle, id, err)
 	}
@@ -149,6 +157,9 @@ func setInventoryResourceData(d *schema.ResourceData, r *awx.Inventory) *schema.
 	}
 	if err := d.Set("variables", utils.Normalize(r.Variables)); err != nil {
 		fmt.Println("Error setting variables", err)
+	}
+	if err := d.Set("prevent_instance_group_fallback", r.PreventInstanceGroupFallback); err != nil {
+		fmt.Println("Error setting prevent_instance_group_fallback", err)
 	}
 	d.SetId(strconv.Itoa(r.ID))
 	return d

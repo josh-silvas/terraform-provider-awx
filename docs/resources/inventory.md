@@ -43,6 +43,7 @@ YAML
 - `description` (String) The description of the inventory
 - `host_filter` (String) The host filter of the inventory
 - `kind` (String) The kind of the inventory
+- `prevent_instance_group_fallback` (Boolean) Only run jobs on instance groups assigned to this inventory, without falling back to the organization instance groups
 - `variables` (String) The variables of the inventory
 
 ### Read-Only
