@@ -241,7 +241,7 @@ func resourceJobTemplate() *schema.Resource {
 			"job_slice_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  false,
+				Default:  1,
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -65,6 +65,7 @@ func dataSourceCredentialByIDRead(_ context.Context, d *schema.ResourceData, m i
 			Summary:  "Unable to fetch credential",
 			Detail:   "The given credential ID is invalid or malformed",
 		})
+		return diags
 	}
 
 	if err := d.Set("username", cred.Inputs["username"]); err != nil {

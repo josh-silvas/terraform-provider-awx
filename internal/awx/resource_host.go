@@ -47,7 +47,7 @@ func resourceHost() *schema.Resource {
 			"enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     "",
+				Default:     true,
 				Description: "The enabled status of the host",
 			},
 			"instance_id": {
