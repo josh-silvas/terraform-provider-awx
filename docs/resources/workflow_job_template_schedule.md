@@ -32,6 +32,7 @@ resource "awx_workflow_job_template_schedule" "default" {
   workflow_job_template_id = awx_workflow_job_template.example.id
   name                     = "schedule-test"
   rrule                    = "DTSTART;TZID=Europe/Paris:20211214T120000 RRULE:INTERVAL=1;FREQ=DAILY"
+  limit                    = "webservers"
   extra_data               = <<EOL
 organization_name: testorg
 EOL
@@ -53,6 +54,7 @@ EOL
 - `enabled` (Boolean) Whether the schedule is enabled or not
 - `extra_data` (String) Extra data to be pass for the schedule (YAML format)
 - `inventory` (String) Inventory applied as a prompt, assuming job template prompts for inventory (id, default=``)
+- `limit` (String) Host pattern applied as a prompt, assuming the workflow job template prompts for a limit
 - `unified_job_template_id` (Number) The unified job template id for this schedule
 
 ### Read-Only

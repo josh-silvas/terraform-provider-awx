@@ -911,6 +911,7 @@ type Schedule struct {
 	Enabled            bool                   `json:"enabled"`
 	UnifiedJobTemplate int                    `json:"unified_job_template"`
 	Inventory          int                    `json:"inventory"`
+	Limit              string                 `json:"limit"`
 	ExtraData          map[string]interface{} `json:"extra_data"`
 }
 

@@ -52,6 +52,12 @@ func resourceSchedule() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the Inventory to be used for the schedule",
 			},
+			"limit": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "Host pattern applied as a prompt, assuming the job template prompts for a limit",
+			},
 			"extra_data": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -77,6 +83,7 @@ func resourceScheduleCreate(ctx context.Context, d *schema.ResourceData, m inter
 		"unified_job_template": d.Get("unified_job_template_id").(int),
 		"description":          d.Get("description").(string),
 		"enabled":              d.Get("enabled").(bool),
+		"limit":                d.Get("limit").(string),
 		"extra_data":           utils.UnmarshalJSON(d.Get("extra_data").(string)),
 	}
 	if _, ok := d.GetOk("inventory"); ok {
@@ -116,6 +123,7 @@ func resourceScheduleUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		"unified_job_template": d.Get("unified_job_template_id").(int),
 		"description":          d.Get("description").(string),
 		"enabled":              d.Get("enabled").(bool),
+		"limit":                d.Get("limit").(string),
 		"extra_data":           utils.UnmarshalJSON(d.Get("extra_data").(string)),
 	}
 	if _, ok := d.GetOk("inventory"); ok {
@@ -177,6 +185,9 @@ func setScheduleResourceData(d *schema.ResourceData, r *awx.Schedule) *schema.Re
 	}
 	if err := d.Set("inventory", r.Inventory); err != nil {
 		fmt.Println("Error setting inventory", err)
+	}
+	if err := d.Set("limit", r.Limit); err != nil {
+		fmt.Println("Error setting limit", err)
 	}
 	if err := d.Set("extra_data", utils.MarshalJSON(r.ExtraData)); err != nil {
 		fmt.Println("Error setting extra_data", err)

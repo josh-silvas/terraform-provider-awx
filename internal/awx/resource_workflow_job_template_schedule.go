@@ -57,6 +57,12 @@ func resourceWorkflowJobTemplateSchedule() *schema.Resource {
 				Optional:    true,
 				Description: "Inventory applied as a prompt, assuming job template prompts for inventory (id, default=``)",
 			},
+			"limit": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "Host pattern applied as a prompt, assuming the workflow job template prompts for a limit",
+			},
 			"extra_data": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -81,6 +87,7 @@ func resourceWorkflowJobTemplateScheduleCreate(ctx context.Context, d *schema.Re
 		"description": d.Get("description").(string),
 		"enabled":     d.Get("enabled").(bool),
 		"inventory":   utils.AtoiDefault(d.Get("inventory").(string), nil),
+		"limit":       d.Get("limit").(string),
 		"extra_data":  utils.UnmarshalYAML(d.Get("extra_data").(string)),
 	}, map[string]string{})
 	if err != nil {
