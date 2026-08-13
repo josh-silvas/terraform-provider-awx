@@ -192,7 +192,7 @@ func resourceJobTemplate() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
-			"ask_instance_group_on_launch": {
+			"ask_instance_groups_on_launch": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -286,7 +286,7 @@ func resourceJobTemplateCreate(ctx context.Context, d *schema.ResourceData, m in
 		"ask_forks_on_launch":                 d.Get("ask_forks_on_launch").(bool),
 		"ask_job_slice_count_on_launch":       d.Get("ask_job_slice_count_on_launch").(bool),
 		"ask_timeout_on_launch":               d.Get("ask_timeout_on_launch").(bool),
-		"ask_instance_group_on_launch":        d.Get("ask_instance_group_on_launch").(bool),
+		"ask_instance_groups_on_launch":       d.Get("ask_instance_groups_on_launch").(bool),
 		"survey_enabled":                      d.Get("survey_enabled").(bool),
 		"become_enabled":                      d.Get("become_enabled").(bool),
 		"diff_mode":                           d.Get("diff_mode").(bool),
@@ -349,7 +349,7 @@ func resourceJobTemplateUpdate(ctx context.Context, d *schema.ResourceData, m in
 		"ask_forks_on_launch":                 d.Get("ask_forks_on_launch").(bool),
 		"ask_job_slice_count_on_launch":       d.Get("ask_job_slice_count_on_launch").(bool),
 		"ask_timeout_on_launch":               d.Get("ask_timeout_on_launch").(bool),
-		"ask_instance_group_on_launch":        d.Get("ask_instance_group_on_launch").(bool),
+		"ask_instance_groups_on_launch":       d.Get("ask_instance_groups_on_launch").(bool),
 		"survey_enabled":                      d.Get("survey_enabled").(bool),
 		"become_enabled":                      d.Get("become_enabled").(bool),
 		"diff_mode":                           d.Get("diff_mode").(bool),
