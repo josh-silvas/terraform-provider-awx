@@ -227,7 +227,7 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Unable to create AWX client",
-			Detail:   "Unable to auth user against AWX API: check the hostname, username and password",
+			Detail:   fmt.Sprintf("Unable to auth user against AWX API (check the hostname, username and password): %s", err),
 		})
 		return nil, diags
 	}

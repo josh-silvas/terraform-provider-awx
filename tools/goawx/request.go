@@ -1,6 +1,7 @@
 package awx
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -110,21 +111,30 @@ func (r *Requester) Do(ar *APIRequest, responseStruct interface{}, options ...in
 		return nil, fmt.Errorf("Do.Request: %v", err)
 	}
 
-	//nolint:gomnd
-	if response.StatusCode == 400 { // Bad Request
-		var errorString string
+	if response.StatusCode >= http.StatusBadRequest {
+		body, readErr := ioutil.ReadAll(response.Body)
+		if closeErr := response.Body.Close(); closeErr != nil {
+			fmt.Println(closeErr)
+		}
+		if readErr != nil {
+			return response, readErr
+		}
+		// Restore the body so callers calling CheckResponse still see it.
+		response.Body = ioutil.NopCloser(bytes.NewReader(body))
 
-		errorList := map[string]interface{}{}
-		if err := json.NewDecoder(response.Body).Decode(&errorList); err != nil {
-			return response, err
+		if response.StatusCode == http.StatusBadRequest {
+			errorList := map[string]interface{}{}
+			if err := json.Unmarshal(body, &errorList); err == nil {
+				errorString := "Errors:"
+				for k, v := range errorList {
+					errorString = fmt.Sprintf("%s\n- %s: %+v", errorString, k, v)
+				}
+
+				return response, errors.New(errorString)
+			}
 		}
 
-		errorString = "Errors:"
-		for k, v := range errorList {
-			errorString = fmt.Sprintf("%s\n- %s: %+v", errorString, k, v)
-		}
-
-		return response, errors.New(errorString)
+		return response, HTTPError(response.StatusCode, body)
 	}
 
 	// If there is no response body, or if the response is of type `No Content` bypass the decode process.

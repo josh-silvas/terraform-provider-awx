@@ -1,9 +1,13 @@
 package awx
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 )
+
+const maxErrorBodyLen = 2048
 
 // This variable is mandatory and to be populated for creating services API.
 //
@@ -60,7 +64,26 @@ func CheckResponse(resp *http.Response) error {
 		return nil
 	}
 
-	return fmt.Errorf("responsed with %d, resp: %v", resp.StatusCode, resp)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		body = nil
+	}
+
+	return HTTPError(resp.StatusCode, body)
+}
+
+// HTTPError builds an error carrying the http status and the response body.
+func HTTPError(statusCode int, body []byte) error {
+	body = bytes.TrimSpace(body)
+	if len(body) == 0 {
+		return fmt.Errorf("responded with %d %s", statusCode, http.StatusText(statusCode))
+	}
+
+	if len(body) > maxErrorBodyLen {
+		body = append(body[:maxErrorBodyLen:maxErrorBodyLen], []byte("... (truncated)")...)
+	}
+
+	return fmt.Errorf("responded with %d %s: %s", statusCode, http.StatusText(statusCode), body)
 }
 
 // ValidateParams is to validate the input to use the services.
