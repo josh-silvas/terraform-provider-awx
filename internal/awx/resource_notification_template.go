@@ -44,9 +44,8 @@ func resourceNotificationTemplate() *schema.Resource {
 				Description: "The description of the notification template.",
 			},
 			"notification_configuration": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
-				Default:     nil,
 				MaxItems:    1,
 				Description: "Notification configuration settings based on the notification type.",
 				// documented at OPTIONS /api/v2/notification_templates/
@@ -239,8 +238,9 @@ func resourceNotificationTemplate() *schema.Resource {
 				},
 			},
 			"messages": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
+				MaxItems:    1,
 				Description: "The description of the notification template. Options are `started`, `success`, `error`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -275,12 +275,12 @@ func resourceNotificationTemplateCreate(ctx context.Context, d *schema.ResourceD
 		"notification_type": d.Get("notification_type").(string),
 	}
 
-	notificationConfig := d.Get("notification_configuration").(*schema.Set).List()
+	notificationConfig := d.Get("notification_configuration").([]interface{})
 	if len(notificationConfig) != 0 {
 		payload["notification_configuration"] = notificationConfig[0].(map[string]interface{})
 	}
 
-	messages := d.Get("messages").(*schema.Set).List()
+	messages := d.Get("messages").([]interface{})
 	if len(messages) != 0 {
 		payload["messages"] = messages[0].(map[string]interface{})
 	}
@@ -312,12 +312,12 @@ func resourceNotificationTemplateUpdate(ctx context.Context, d *schema.ResourceD
 		"notification_type": d.Get("notification_type").(string),
 	}
 
-	notificationConfig := d.Get("notification_configuration").(*schema.Set).List()
+	notificationConfig := d.Get("notification_configuration").([]interface{})
 	if len(notificationConfig) != 0 {
 		payload["notification_configuration"] = notificationConfig[0].(map[string]interface{})
 	}
 
-	messages := d.Get("messages").(*schema.Set).List()
+	messages := d.Get("messages").([]interface{})
 	if len(messages) != 0 {
 		payload["messages"] = messages[0].(map[string]interface{})
 	}
@@ -372,13 +372,16 @@ func setNotificationTemplateResourceData(d *schema.ResourceData, r *awx.Notifica
 		fmt.Println("Error setting notification_type", err)
 	}
 
-	// Sanitize encrypted fields in notification_configuration
 	sanitizedConfig := sanitizeNotificationConfiguration(d, r.NotificationConfiguration)
-	if err := d.Set("notification_configuration", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{sanitizedConfig})); err != nil {
+	if err := d.Set("notification_configuration", []interface{}{sanitizedConfig}); err != nil {
 		fmt.Println("Error setting notification_configuration", err)
 	}
 
-	if err := d.Set("messages", schema.NewSet(func(i interface{}) int { return len(i.(map[string]interface{})) }, []interface{}{r.Messages})); err != nil {
+	messages := make([]interface{}, 0, 1)
+	if r.Messages != nil {
+		messages = append(messages, r.Messages)
+	}
+	if err := d.Set("messages", messages); err != nil {
 		fmt.Println("Error setting messages", err)
 	}
 	d.SetId(strconv.Itoa(r.ID))
@@ -390,11 +393,10 @@ func sanitizeNotificationConfiguration(d *schema.ResourceData, config map[string
 	// List of fields that may contain encrypted values
 	encryptedFields := []string{"password", "token", "account_token", "service_key", "grafana_key"}
 
-	// Get the current state configuration
-	stateConfigSet := d.Get("notification_configuration").(*schema.Set).List()
+	stateConfigList := d.Get("notification_configuration").([]interface{})
 	var stateConfig map[string]interface{}
-	if len(stateConfigSet) > 0 {
-		stateConfig = stateConfigSet[0].(map[string]interface{})
+	if len(stateConfigList) > 0 {
+		stateConfig, _ = stateConfigList[0].(map[string]interface{})
 	}
 
 	// Create a copy of the config to avoid modifying the original
