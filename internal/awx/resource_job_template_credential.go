@@ -54,7 +54,23 @@ func resourceJobTemplateCredentialsCreate(_ context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceJobTemplateCredentialsRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceJobTemplateCredentialsRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*awx.AWX)
+	jobTemplateID := d.Get("job_template_id").(int)
+	credentialID := d.Get("credential_id").(int)
+
+	credentials, err := client.JobTemplateService.ListJobTemplateCredentials(jobTemplateID, make(map[string]string))
+	if err != nil {
+		return utils.DiagNotFound("JobTemplate Credential", jobTemplateID, err)
+	}
+
+	for _, credential := range credentials {
+		if credential.ID == credentialID {
+			return nil
+		}
+	}
+
+	d.SetId("")
 	return nil
 }
 

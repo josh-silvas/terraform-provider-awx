@@ -179,6 +179,29 @@ func (jt *JobTemplateService) DeleteJobTemplate(id int) (*JobTemplate, error) {
 	return result, nil
 }
 
+// ListJobTemplateCredentials lists the credentials currently associated with a job template.
+func (jt *JobTemplateService) ListJobTemplateCredentials(id int, params map[string]string) ([]*Credential, error) {
+	result := new(ListCredentialsResponse)
+	endpoint := fmt.Sprintf("%s%d/credentials/", jobTemplateAPIEndpoint, id)
+	resp, err := jt.client.Requester.GetJSON(endpoint, result, params)
+	if resp != nil {
+		func() {
+			if err := resp.Body.Close(); err != nil {
+				fmt.Println(err)
+			}
+		}()
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	if err := CheckResponse(resp); err != nil {
+		return nil, err
+	}
+
+	return result.Results, nil
+}
+
 // DisAssociateCredentials remove Credentials form an awx job template.
 func (jt *JobTemplateService) DisAssociateCredentials(id int, data map[string]interface{}, _ map[string]string) (*JobTemplate, error) {
 	result := new(JobTemplate)
