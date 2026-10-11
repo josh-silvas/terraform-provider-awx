@@ -18,6 +18,7 @@ var writeOnlyResources = []struct {
 	{"awx_credential_scm", resourceCredentialSCM, credentialSCMSecrets},
 	{"awx_credential_azure_key_vault", resourceCredentialAzureKeyVault, credentialAzureKeyVaultSecrets},
 	{"awx_credential_container_registry", resourceCredentialContainerRegistry, credentialContainerRegistrySecrets},
+	{"awx_credential_galaxy", resourceCredentialGalaxy, credentialGalaxySecrets},
 }
 
 func TestWriteOnlyResourceSchemasAreValid(t *testing.T) {

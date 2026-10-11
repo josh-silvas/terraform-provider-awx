@@ -12,8 +12,13 @@ import (
 
 const galaxyCredentialTypeName = "Ansible Galaxy/Automation Hub API Token" //nolint:gosec
 
+// credentialGalaxySecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialGalaxySecrets = map[string]string{
+	"token": "The API token for the Ansible Galaxy/Automation Hub API.",
+}
+
 func resourceCredentialGalaxy() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "`awx_credential_galaxy` manages Ansible Galaxy/Automation Hub API Token credentials in AWX.",
 		CreateContext: resourceCredentialGalaxyCreate,
 		ReadContext:   resourceCredentialGalaxyRead,
@@ -56,6 +61,12 @@ func resourceCredentialGalaxy() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
+
+	for field, description := range credentialGalaxySecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialGalaxyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -81,7 +92,7 @@ func resourceCredentialGalaxyCreate(ctx context.Context, d *schema.ResourceData,
 		"inputs": map[string]interface{}{
 			"url":      d.Get("url").(string),
 			"auth_url": d.Get("auth_url").(string),
-			"token":    d.Get("token").(string),
+			"token":    getSecret(d, "token"),
 		},
 	}
 
@@ -151,6 +162,7 @@ func resourceCredentialGalaxyUpdate(ctx context.Context, d *schema.ResourceData,
 		"team_id",
 		"owner_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialGalaxySecrets)...)
 
 	if d.HasChanges(keys...) {
 		var err error
@@ -175,7 +187,7 @@ func resourceCredentialGalaxyUpdate(ctx context.Context, d *schema.ResourceData,
 			"inputs": map[string]interface{}{
 				"url":      d.Get("url").(string),
 				"auth_url": d.Get("auth_url").(string),
-				"token":    d.Get("token").(string),
+				"token":    getSecret(d, "token"),
 			},
 		}
 
