@@ -215,14 +215,11 @@ func resourceCredentialMachineUpdate(ctx context.Context, d *schema.ResourceData
 		"become_method",
 		"become_username",
 		"become_password",
-		"password_wo_version",
-		"ssh_key_data_wo_version",
-		"ssh_key_unlock_wo_version",
-		"become_password_wo_version",
 		"organization_id",
 		"team_id",
 		"owner_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialMachineSecrets)...)
 
 	if d.HasChanges(keys...) {
 		var err error

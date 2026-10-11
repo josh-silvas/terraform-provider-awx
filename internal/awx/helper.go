@@ -64,6 +64,16 @@ func addWriteOnlySecret(s map[string]*schema.Schema, field, description string) 
 	}
 }
 
+// writeOnlyVersionKeys returns the "<field>_wo_version" keys for the given secrets, for use with d.HasChanges.
+func writeOnlyVersionKeys(secrets map[string]string) []string {
+	keys := make([]string, 0, len(secrets))
+	for field := range secrets {
+		keys = append(keys, field+writeOnlyVersionSuffix)
+	}
+
+	return keys
+}
+
 // getSecret returns the value of the write-only "<field>_wo" from the configuration when set, falling back to the
 // legacy "<field>" attribute otherwise.
 func getSecret(d *schema.ResourceData, field string) string {

@@ -12,8 +12,15 @@ import (
 
 const scmCredentialTypeName = "Source Control" //nolint:gosec
 
+// credentialSCMSecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialSCMSecrets = map[string]string{
+	"password":       "The password for the credential.",
+	"ssh_key_data":   "The SSH key data for the credential.",
+	"ssh_key_unlock": "The SSH key unlock for the credential.",
+}
+
 func resourceCredentialSCM() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "`awx_credential_scm` manages Source Control credentials in AWX.",
 		CreateContext: resourceCredentialSCMCreate,
 		ReadContext:   resourceCredentialSCMRead,
@@ -63,6 +70,12 @@ func resourceCredentialSCM() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
+
+	for field, description := range credentialSCMSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialSCMCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -87,9 +100,9 @@ func resourceCredentialSCMCreate(ctx context.Context, d *schema.ResourceData, m 
 		"credential_type": credType.ID,
 		"inputs": map[string]interface{}{
 			"username":       d.Get("username").(string),
-			"password":       d.Get("password").(string),
-			"ssh_key_data":   d.Get("ssh_key_data").(string),
-			"ssh_key_unlock": d.Get("ssh_key_unlock").(string),
+			"password":       getSecret(d, "password"),
+			"ssh_key_data":   getSecret(d, "ssh_key_data"),
+			"ssh_key_unlock": getSecret(d, "ssh_key_unlock"),
 		},
 	}
 
@@ -161,6 +174,7 @@ func resourceCredentialSCMUpdate(ctx context.Context, d *schema.ResourceData, m 
 		"ssh_key_unlock",
 		"organization_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialSCMSecrets)...)
 
 	if d.HasChanges(keys...) {
 		var err error
@@ -184,9 +198,9 @@ func resourceCredentialSCMUpdate(ctx context.Context, d *schema.ResourceData, m 
 			"credential_type": credType.ID,
 			"inputs": map[string]interface{}{
 				"username":       d.Get("username").(string),
-				"password":       d.Get("password").(string),
-				"ssh_key_data":   d.Get("ssh_key_data").(string),
-				"ssh_key_unlock": d.Get("ssh_key_unlock").(string),
+				"password":       getSecret(d, "password"),
+				"ssh_key_data":   getSecret(d, "ssh_key_data"),
+				"ssh_key_unlock": getSecret(d, "ssh_key_unlock"),
 			},
 		}
 
