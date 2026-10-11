@@ -41,6 +41,8 @@ resource "awx_credential_container_registry" "example" {
 
 - `description` (String) The description of the credential.
 - `password` (String, Sensitive) A password or token used to authenticate with.
+- `password_wo` (String, Sensitive) A password or token used to authenticate with. Write-only: never stored in state. Requires Terraform >= 1.11. Use `password` for older versions.
+- `password_wo_version` (Number) Version of `password_wo`. Change it to send a new value of `password_wo` to AWX.
 - `username` (String) The username to use for the credential.
 - `verify_ssl` (Boolean) Verify SSL
 
