@@ -31,13 +31,15 @@ resource "awx_credential_vault" "example" {
 ### Required
 
 - `name` (String) The name of the credential.
-- `vault_password` (String, Sensitive) Vault Password.
 
 ### Optional
 
 - `description` (String) The description of the credential.
 - `organization_id` (Number) The organization ID this credential belongs to.
 - `vault_id` (String) The vault identity to use.
+- `vault_password` (String, Sensitive) Vault Password.
+- `vault_password_wo` (String, Sensitive) Vault Password. Write-only: never stored in state. Requires Terraform >= 1.11. Use `vault_password` for older versions.
+- `vault_password_wo_version` (Number) Version of `vault_password_wo`. Change it to send a new value of `vault_password_wo` to AWX.
 
 ### Read-Only
 
