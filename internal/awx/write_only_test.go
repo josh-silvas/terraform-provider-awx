@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // writeOnlyResources lists every resource that exposes write-only "<field>_wo" secrets.
@@ -15,6 +16,7 @@ var writeOnlyResources = []struct {
 }{
 	{"awx_credential_machine", resourceCredentialMachine, credentialMachineSecrets},
 	{"awx_credential_scm", resourceCredentialSCM, credentialSCMSecrets},
+	{"awx_credential_azure_key_vault", resourceCredentialAzureKeyVault, credentialAzureKeyVaultSecrets},
 }
 
 func TestWriteOnlyResourceSchemasAreValid(t *testing.T) {
@@ -42,6 +44,43 @@ func TestWriteOnlyResourceSecrets(t *testing.T) {
 				if v := s[field+writeOnlyVersionSuffix]; v == nil || v.WriteOnly {
 					t.Errorf("%s%s: want a regular (stored) attribute", field, writeOnlyVersionSuffix)
 				}
+			}
+		})
+	}
+}
+
+func TestWriteOnlyRequiredSecretNeedsExactlyOne(t *testing.T) {
+	base := map[string]interface{}{
+		"name":            "test",
+		"organization_id": 1,
+		"url":             "https://vault.example.com",
+		"client":          "client",
+		"tenant":          "tenant",
+	}
+	cases := []struct {
+		name    string
+		extra   map[string]interface{}
+		wantErr bool
+	}{
+		{"legacy", map[string]interface{}{"secret": "s"}, false},
+		{"write-only", map[string]interface{}{"secret_wo": "s"}, false},
+		{"neither", nil, true},
+		{"both", map[string]interface{}{"secret": "s", "secret_wo": "s"}, true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			raw := map[string]interface{}{}
+			for k, v := range base {
+				raw[k] = v
+			}
+			for k, v := range tc.extra {
+				raw[k] = v
+			}
+
+			diags := resourceCredentialAzureKeyVault().Validate(terraform.NewResourceConfigRaw(raw))
+			if diags.HasError() != tc.wantErr {
+				t.Errorf("Validate error = %v, want error %v", diags, tc.wantErr)
 			}
 		})
 	}

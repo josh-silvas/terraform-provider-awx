@@ -43,18 +43,26 @@ const (
 
 // addWriteOnlySecret adds "<field>_wo" and "<field>_wo_version" to the schema. The write-only value is never
 // persisted to state (requires Terraform >= 1.11), so bumping the version is what makes Terraform send it again.
+// A required field becomes optional, with exactly one of "<field>" and "<field>_wo" required instead.
 func addWriteOnlySecret(s map[string]*schema.Schema, field, description string) {
 	wo := field + writeOnlySuffix
 	version := field + writeOnlyVersionSuffix
 
-	s[field].ConflictsWith = append(s[field].ConflictsWith, wo)
 	s[wo] = &schema.Schema{
-		Type:          schema.TypeString,
-		Optional:      true,
-		WriteOnly:     true,
-		Sensitive:     true,
-		ConflictsWith: []string{field},
-		Description:   description + " Write-only: never stored in state. Requires Terraform >= 1.11. Use `" + field + "` for older versions.",
+		Type:        schema.TypeString,
+		Optional:    true,
+		WriteOnly:   true,
+		Sensitive:   true,
+		Description: description + " Write-only: never stored in state. Requires Terraform >= 1.11. Use `" + field + "` for older versions.",
+	}
+	if s[field].Required {
+		s[field].Required = false
+		s[field].Optional = true
+		s[field].ExactlyOneOf = []string{field, wo}
+		s[wo].ExactlyOneOf = []string{field, wo}
+	} else {
+		s[field].ConflictsWith = append(s[field].ConflictsWith, wo)
+		s[wo].ConflictsWith = []string{field}
 	}
 	s[version] = &schema.Schema{
 		Type:         schema.TypeInt,
