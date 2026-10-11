@@ -136,8 +136,9 @@ func resourceCredentialAzureKeyVaultUpdate(ctx context.Context, d *schema.Resour
 		"description",
 		"url",
 		"client",
-		//"secret",
+		"secret",
 		"tenant",
+		"organization_id",
 	}
 
 	if d.HasChanges(keys...) {
