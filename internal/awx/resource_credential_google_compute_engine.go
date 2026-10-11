@@ -12,8 +12,13 @@ import (
 
 const gceCredentialTypeName = "Google Compute Engine" //nolint:gosec
 
+// credentialGoogleComputeEngineSecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialGoogleComputeEngineSecrets = map[string]string{
+	"ssh_key_data": "The SSH key data to use for the credential.",
+}
+
 func resourceCredentialGoogleComputeEngine() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "`awx_credential_google_compute_engine` manages Google Compute Engine credentials in AWX.",
 		CreateContext: resourceCredentialGoogleComputeEngineCreate,
 		ReadContext:   resourceCredentialGoogleComputeEngineRead,
@@ -56,6 +61,12 @@ func resourceCredentialGoogleComputeEngine() *schema.Resource {
 			},
 		},
 	}
+
+	for field, description := range credentialGoogleComputeEngineSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialGoogleComputeEngineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -81,7 +92,7 @@ func resourceCredentialGoogleComputeEngineCreate(ctx context.Context, d *schema.
 		"inputs": map[string]interface{}{
 			"username":     d.Get("username").(string),
 			"project":      d.Get("project").(string),
-			"ssh_key_data": d.Get("ssh_key_data").(string),
+			"ssh_key_data": getSecret(d, "ssh_key_data"),
 		},
 	}
 
@@ -146,6 +157,7 @@ func resourceCredentialGoogleComputeEngineUpdate(ctx context.Context, d *schema.
 		"ssh_key_data",
 		"organization_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialGoogleComputeEngineSecrets)...)
 
 	client := m.(*awx.AWX)
 
@@ -171,7 +183,7 @@ func resourceCredentialGoogleComputeEngineUpdate(ctx context.Context, d *schema.
 			"inputs": map[string]interface{}{
 				"username":     d.Get("username").(string),
 				"project":      d.Get("project").(string),
-				"ssh_key_data": d.Get("ssh_key_data").(string),
+				"ssh_key_data": getSecret(d, "ssh_key_data"),
 			},
 		}
 

@@ -35,12 +35,14 @@ resource "awx_credential_google_compute_engine" "example" {
 - `name` (String) The name of the credential.
 - `organization_id` (Number) The organization ID this credential belongs to.
 - `project` (String) The project to use for the credential.
-- `ssh_key_data` (String, Sensitive) The SSH key data to use for the credential.
 - `username` (String) The username to use for the credential.
 
 ### Optional
 
 - `description` (String) The description of the credential.
+- `ssh_key_data` (String, Sensitive) The SSH key data to use for the credential.
+- `ssh_key_data_wo` (String, Sensitive) The SSH key data to use for the credential. Write-only: never stored in state. Requires Terraform >= 1.11. Use `ssh_key_data` for older versions.
+- `ssh_key_data_wo_version` (Number) Version of `ssh_key_data_wo`. Change it to send a new value of `ssh_key_data_wo` to AWX.
 
 ### Read-Only
 
