@@ -128,3 +128,53 @@ func TestStringFromCty(t *testing.T) {
 		})
 	}
 }
+
+func TestCredentialSchemaIsValid(t *testing.T) {
+	if err := resourceCredential().InternalValidate(nil, true); err != nil {
+		t.Fatalf("invalid schema: %v", err)
+	}
+	if wo := resourceCredential().Schema["secret_inputs_wo"]; !wo.WriteOnly || !wo.Sensitive {
+		t.Error("secret_inputs_wo: want a sensitive write-only attribute")
+	}
+}
+
+func TestMergeSecretInputs(t *testing.T) {
+	got, err := mergeSecretInputs(map[string]interface{}{"username": "admin"}, `{"password": "secret", "verify": true}`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got["username"] != "admin" || got["password"] != "secret" || got["verify"] != true {
+		t.Errorf("merged inputs = %v", got)
+	}
+
+	if _, err := mergeSecretInputs(map[string]interface{}{"password": "x"}, `{"password": "y"}`); err == nil {
+		t.Error("want an error for a key set in both inputs and secret_inputs_wo")
+	}
+	if _, err := mergeSecretInputs(map[string]interface{}{}, `["password"]`); err == nil {
+		t.Error("want an error for a non-object JSON value")
+	}
+}
+
+func TestStateCredentialInputs(t *testing.T) {
+	remote := map[string]interface{}{
+		"username":     "admin",
+		"password":     "$encrypted$",
+		"ssh_key_data": "$encrypted$",
+	}
+	prior := map[string]interface{}{
+		"username":     "admin",
+		"ssh_key_data": "legacy",
+	}
+
+	got := stateCredentialInputs(prior, remote)
+
+	if _, ok := got["password"]; ok {
+		t.Error("password: encrypted input not tracked in state should be left out")
+	}
+	if got["ssh_key_data"] != "$encrypted$" {
+		t.Errorf("ssh_key_data = %v, want $encrypted$ (legacy input tracked in state)", got["ssh_key_data"])
+	}
+	if got["username"] != "admin" {
+		t.Errorf("username = %v, want admin", got["username"])
+	}
+}
