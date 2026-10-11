@@ -10,9 +10,14 @@ import (
 	"github.com/josh-silvas/terraform-provider-awx/tools/utils"
 )
 
+// userSecrets are the secret attributes that also accept a write-only "<field>_wo" variant.
+var userSecrets = map[string]string{
+	"password": "The password of the user.",
+}
+
 //nolint:funlen
 func resourceUser() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "This resource allows you to create, update, and delete a user in AWX.",
 		CreateContext: resourceUserCreate,
 		ReadContext:   resourceUserRead,
@@ -74,6 +79,12 @@ func resourceUser() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
+
+	for field, description := range userSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -82,7 +93,7 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface
 
 	result, err := client.UserService.CreateUser(map[string]interface{}{
 		"username":          userName,
-		"password":          d.Get("password").(string),
+		"password":          getSecret(d, "password"),
 		"first_name":        d.Get("first_name").(string),
 		"last_name":         d.Get("last_name").(string),
 		"email":             d.Get("email").(string),
@@ -157,7 +168,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	}
 	if _, err := client.UserService.UpdateUser(id, map[string]interface{}{
 		"username":          d.Get("username").(string),
-		"password":          d.Get("password").(string),
+		"password":          getSecret(d, "password"),
 		"first_name":        d.Get("first_name").(string),
 		"last_name":         d.Get("last_name").(string),
 		"email":             d.Get("email").(string),

@@ -22,6 +22,7 @@ var writeOnlyResources = []struct {
 	{"awx_credential_gitlab", resourceCredentialGitlab, credentialGitlabSecrets},
 	{"awx_credential_google_compute_engine", resourceCredentialGoogleComputeEngine, credentialGoogleComputeEngineSecrets},
 	{"awx_credential_vault", resourceCredentialVault, credentialVaultSecrets},
+	{"awx_user", resourceUser, userSecrets},
 }
 
 func TestWriteOnlyResourceSchemasAreValid(t *testing.T) {
