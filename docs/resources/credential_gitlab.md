@@ -31,12 +31,14 @@ resource "awx_credential_gitlab" "example" {
 ### Required
 
 - `name` (String) The name of the credential.
-- `token` (String, Sensitive) The GitLab Personal Access Token.
 
 ### Optional
 
 - `description` (String) The description of the credential.
 - `organization_id` (Number) The organization ID that this credential belongs to.
+- `token` (String, Sensitive) The GitLab Personal Access Token.
+- `token_wo` (String, Sensitive) The GitLab Personal Access Token. Write-only: never stored in state. Requires Terraform >= 1.11. Use `token` for older versions.
+- `token_wo_version` (Number) Version of `token_wo`. Change it to send a new value of `token_wo` to AWX.
 
 ### Read-Only
 
