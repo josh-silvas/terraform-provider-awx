@@ -30,6 +30,7 @@ func notificationTemplateRemote(url string) *awx.NotificationTemplate {
 	return &awx.NotificationTemplate{
 		ID:               1,
 		Name:             "test",
+		Organization:     1,
 		NotificationType: "webhook",
 		NotificationConfiguration: map[string]interface{}{
 			"url":                      url,
@@ -107,5 +108,18 @@ func TestNotificationTemplateReadWithoutMessages(t *testing.T) {
 
 	if messages := d.Get("messages").([]interface{}); len(messages) != 0 {
 		t.Errorf("messages = %v, want empty", messages)
+	}
+}
+
+func TestNotificationTemplateReadSetsOrganizationID(t *testing.T) {
+	r := resourceNotificationTemplate()
+	d := schema.TestResourceDataRaw(t, r.Schema, notificationTemplateConfig("https://example.com", nil))
+
+	remote := notificationTemplateRemote("https://example.com")
+	remote.Organization = 2
+	setNotificationTemplateResourceData(d, remote)
+
+	if got := d.Get("organization_id").(string); got != "2" {
+		t.Errorf("organization_id = %q, want 2", got)
 	}
 }
