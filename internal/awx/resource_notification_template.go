@@ -365,8 +365,8 @@ func setNotificationTemplateResourceData(d *schema.ResourceData, r *awx.Notifica
 	if err := d.Set("description", r.Description); err != nil {
 		fmt.Println("Error setting description", err)
 	}
-	if err := d.Set("organization", r.Organization); err != nil {
-		fmt.Println("Error setting organization", err)
+	if err := d.Set("organization_id", strconv.Itoa(r.Organization)); err != nil {
+		fmt.Println("Error setting organization_id", err)
 	}
 	if err := d.Set("notification_type", r.NotificationType); err != nil {
 		fmt.Println("Error setting notification_type", err)
