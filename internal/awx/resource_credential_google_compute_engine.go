@@ -144,6 +144,7 @@ func resourceCredentialGoogleComputeEngineUpdate(ctx context.Context, d *schema.
 		"username",
 		"project",
 		"ssh_key_data",
+		"organization_id",
 	}
 
 	client := m.(*awx.AWX)
