@@ -160,6 +160,7 @@ func resourceCredentialContainerRegistryUpdate(ctx context.Context, d *schema.Re
 		"password",
 		"host",
 		"verify_ssl",
+		"organization_id",
 	}
 
 	client := m.(*awx.AWX)
