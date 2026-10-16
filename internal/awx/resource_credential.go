@@ -2,10 +2,14 @@ package awx
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strconv"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	awx "github.com/josh-silvas/terraform-provider-awx/tools/goawx"
 	"github.com/josh-silvas/terraform-provider-awx/tools/utils"
 )
@@ -42,10 +46,25 @@ func resourceCredential() *schema.Resource {
 			},
 			"inputs": {
 				Type:             schema.TypeMap,
-				Required:         true,
+				Optional:         true,
 				Sensitive:        true,
 				Description:      "The inputs to be created with the credential.",
 				DiffSuppressFunc: suppressValueDiff,
+			},
+			"secret_inputs_wo": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				ValidateFunc: validation.StringIsJSON,
+				Description: "Secret inputs as a JSON object, e.g. `jsonencode({ password = var.password })`, merged with `inputs` " +
+					"before being sent to AWX. Keys must not also be set in `inputs`. Write-only: never stored in state. Requires Terraform >= 1.11.",
+			},
+			"secret_inputs_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"secret_inputs_wo"},
+				Description:  "Version of `secret_inputs_wo`. Change it to send a new value of `secret_inputs_wo` to AWX.",
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -55,7 +74,10 @@ func resourceCredential() *schema.Resource {
 }
 
 func resourceCredentialCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	inputsMap := d.Get("inputs")
+	inputsMap, err := credentialInputs(d)
+	if err != nil {
+		return utils.DiagCreate(diagCredentialTitle, err)
+	}
 
 	payload := map[string]interface{}{
 		"name":            d.Get("name").(string),
@@ -99,7 +121,7 @@ func resourceCredentialRead(_ context.Context, d *schema.ResourceData, m interfa
 	if err := d.Set("credential_type_id", cred.CredentialTypeID); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("inputs", cred.Inputs); err != nil {
+	if err := d.Set("inputs", stateCredentialInputs(d.Get("inputs").(map[string]interface{}), cred.Inputs)); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -112,12 +134,14 @@ func resourceCredentialUpdate(ctx context.Context, d *schema.ResourceData, m int
 		"description",
 		"organization_id",
 		"inputs",
+		"secret_inputs_wo_version",
 	}
 
 	if d.HasChanges(keys...) {
-		var err error
-
-		inputsMap := d.Get("inputs")
+		inputsMap, err := credentialInputs(d)
+		if err != nil {
+			return utils.DiagUpdate(diagCredentialTitle, d.Id(), err)
+		}
 
 		id, err := strconv.Atoi(d.Id())
 		if err != nil {
@@ -151,4 +175,52 @@ func resourceCredentialDelete(_ context.Context, d *schema.ResourceData, m inter
 	}
 
 	return diag.Diagnostics{}
+}
+
+// credentialInputs merges "inputs" with the write-only "secret_inputs_wo" JSON object from the configuration.
+func credentialInputs(d *schema.ResourceData) (map[string]interface{}, error) {
+	inputs := map[string]interface{}{}
+	for k, v := range d.Get("inputs").(map[string]interface{}) {
+		inputs[k] = v
+	}
+
+	raw, diags := d.GetRawConfigAt(cty.GetAttrPath("secret_inputs_wo"))
+	if diags.HasError() {
+		return inputs, nil
+	}
+	secretJSON, ok := stringFromCty(raw)
+	if !ok || secretJSON == "" {
+		return inputs, nil
+	}
+
+	return mergeSecretInputs(inputs, secretJSON)
+}
+
+func mergeSecretInputs(inputs map[string]interface{}, secretJSON string) (map[string]interface{}, error) {
+	var secrets map[string]interface{}
+	if err := json.Unmarshal([]byte(secretJSON), &secrets); err != nil {
+		return nil, fmt.Errorf("secret_inputs_wo must be a JSON object: %w", err)
+	}
+	for k, v := range secrets {
+		if _, ok := inputs[k]; ok {
+			return nil, fmt.Errorf("input %q is set in both inputs and secret_inputs_wo", k)
+		}
+		inputs[k] = v
+	}
+
+	return inputs, nil
+}
+
+// stateCredentialInputs returns the inputs to store in state. AWX returns every secret input as '$encrypted$';
+// those not already tracked in state (e.g. sent through secret_inputs_wo) are left out to avoid a permanent diff.
+func stateCredentialInputs(prior, remote map[string]interface{}) map[string]interface{} {
+	inputs := make(map[string]interface{}, len(remote))
+	for k, v := range remote {
+		if _, tracked := prior[k]; v == "$encrypted$" && !tracked {
+			continue
+		}
+		inputs[k] = v
+	}
+
+	return inputs
 }

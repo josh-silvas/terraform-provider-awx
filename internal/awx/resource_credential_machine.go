@@ -12,9 +12,17 @@ import (
 
 const machineCredentialTypeName = "Machine" //nolint:gosec
 
+// credentialMachineSecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialMachineSecrets = map[string]string{
+	"password":        "The password for the credential.",
+	"ssh_key_data":    "The SSH key data for the credential.",
+	"ssh_key_unlock":  "The SSH key unlock for the credential.",
+	"become_password": "The become password for the credential.",
+}
+
 //nolint:funlen
 func resourceCredentialMachine() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "The `awx_credential_machine` resource allows creation and management of machine credentials within an AWX instance.",
 		CreateContext: resourceCredentialMachineCreate,
 		ReadContext:   resourceCredentialMachineRead,
@@ -85,6 +93,12 @@ func resourceCredentialMachine() *schema.Resource {
 			},
 		},
 	}
+
+	for field, description := range credentialMachineSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -109,13 +123,13 @@ func resourceCredentialMachineCreate(ctx context.Context, d *schema.ResourceData
 		"credential_type": credType.ID,
 		"inputs": map[string]interface{}{
 			"username":            d.Get("username").(string),
-			"password":            d.Get("password").(string),
-			"ssh_key_data":        d.Get("ssh_key_data").(string),
+			"password":            getSecret(d, "password"),
+			"ssh_key_data":        getSecret(d, "ssh_key_data"),
 			"ssh_public_key_data": d.Get("ssh_public_key_data").(string),
-			"ssh_key_unlock":      d.Get("ssh_key_unlock").(string),
+			"ssh_key_unlock":      getSecret(d, "ssh_key_unlock"),
 			"become_method":       d.Get("become_method").(string),
 			"become_username":     d.Get("become_username").(string),
-			"become_password":     d.Get("become_password").(string),
+			"become_password":     getSecret(d, "become_password"),
 		},
 	}
 
@@ -205,6 +219,7 @@ func resourceCredentialMachineUpdate(ctx context.Context, d *schema.ResourceData
 		"team_id",
 		"owner_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialMachineSecrets)...)
 
 	if d.HasChanges(keys...) {
 		var err error
@@ -228,13 +243,13 @@ func resourceCredentialMachineUpdate(ctx context.Context, d *schema.ResourceData
 			"credential_type": credType.ID,
 			"inputs": map[string]interface{}{
 				"username":            d.Get("username").(string),
-				"password":            d.Get("password").(string),
-				"ssh_key_data":        d.Get("ssh_key_data").(string),
+				"password":            getSecret(d, "password"),
+				"ssh_key_data":        getSecret(d, "ssh_key_data"),
 				"ssh_public_key_data": d.Get("ssh_public_key_data").(string),
-				"ssh_key_unlock":      d.Get("ssh_key_unlock").(string),
+				"ssh_key_unlock":      getSecret(d, "ssh_key_unlock"),
 				"become_method":       d.Get("become_method").(string),
 				"become_username":     d.Get("become_username").(string),
-				"become_password":     d.Get("become_password").(string),
+				"become_password":     getSecret(d, "become_password"),
 			},
 		}
 

@@ -35,13 +35,15 @@ resource "awx_credential" "example" {
 ### Required
 
 - `credential_type_id` (Number) Specify the type of credential you want to create. Refer to the Ansible Tower documentation for details on each type
-- `inputs` (Map of String, Sensitive) The inputs to be created with the credential.
 - `name` (String) The name of the credential
 - `organization_id` (Number) The organization ID that the credential belongs to
 
 ### Optional
 
 - `description` (String) The description of the credential
+- `inputs` (Map of String, Sensitive) The inputs to be created with the credential.
+- `secret_inputs_wo` (String, Sensitive) Secret inputs as a JSON object, e.g. `jsonencode({ password = var.password })`, merged with `inputs` before being sent to AWX. Keys must not also be set in `inputs`. Write-only: never stored in state. Requires Terraform >= 1.11.
+- `secret_inputs_wo_version` (Number) Version of `secret_inputs_wo`. Change it to send a new value of `secret_inputs_wo` to AWX.
 
 ### Read-Only
 

@@ -12,8 +12,13 @@ import (
 
 const gitlabCredentialTypeName = "GitLab Personal Access Token" //nolint:gosec
 
+// credentialGitlabSecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialGitlabSecrets = map[string]string{
+	"token": "The GitLab Personal Access Token.",
+}
+
 func resourceCredentialGitlab() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "`awx_credential_gitlab` manages GitLab Personal Access Token credentials in AWX.",
 		CreateContext: resourceCredentialGitlabCreate,
 		ReadContext:   resourceCredentialGitlabRead,
@@ -46,6 +51,12 @@ func resourceCredentialGitlab() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
+
+	for field, description := range credentialGitlabSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialGitlabCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -69,7 +80,7 @@ func resourceCredentialGitlabCreate(ctx context.Context, d *schema.ResourceData,
 		"organization":    d.Get("organization_id").(int),
 		"credential_type": credType.ID,
 		"inputs": map[string]interface{}{
-			"token": d.Get("token").(string),
+			"token": getSecret(d, "token"),
 		},
 	}
 
@@ -129,6 +140,7 @@ func resourceCredentialGitlabUpdate(ctx context.Context, d *schema.ResourceData,
 		"token",
 		"organization_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialGitlabSecrets)...)
 
 	if d.HasChanges(keys...) {
 		var err error
@@ -151,7 +163,7 @@ func resourceCredentialGitlabUpdate(ctx context.Context, d *schema.ResourceData,
 			"organization":    d.Get("organization_id").(int),
 			"credential_type": credType.ID,
 			"inputs": map[string]interface{}{
-				"token": d.Get("token").(string),
+				"token": getSecret(d, "token"),
 			},
 		}
 

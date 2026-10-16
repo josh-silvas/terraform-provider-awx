@@ -12,8 +12,13 @@ import (
 
 const containerRegistryCredentialTypeName = "Container Registry" //nolint:gosec
 
+// credentialContainerRegistrySecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialContainerRegistrySecrets = map[string]string{
+	"password": "A password or token used to authenticate with.",
+}
+
 func resourceCredentialContainerRegistry() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "`awx_credential_container_registry` manages container registry credentials in AWX.",
 		CreateContext: resourceCredentialContainerRegistryCreate,
 		ReadContext:   resourceCredentialContainerRegistryRead,
@@ -62,6 +67,12 @@ func resourceCredentialContainerRegistry() *schema.Resource {
 			},
 		},
 	}
+
+	for field, description := range credentialContainerRegistrySecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialContainerRegistryCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -86,7 +97,7 @@ func resourceCredentialContainerRegistryCreate(ctx context.Context, d *schema.Re
 		"credential_type": containerRegistryCredType.ID,
 		"inputs": map[string]interface{}{
 			"username":   d.Get("username").(string),
-			"password":   d.Get("password").(string),
+			"password":   getSecret(d, "password"),
 			"host":       d.Get("host").(string),
 			"verify_ssl": d.Get("verify_ssl").(bool),
 		},
@@ -162,6 +173,7 @@ func resourceCredentialContainerRegistryUpdate(ctx context.Context, d *schema.Re
 		"verify_ssl",
 		"organization_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialContainerRegistrySecrets)...)
 
 	client := m.(*awx.AWX)
 
@@ -186,7 +198,7 @@ func resourceCredentialContainerRegistryUpdate(ctx context.Context, d *schema.Re
 			"credential_type": containerRegistryCredType.ID,
 			"inputs": map[string]interface{}{
 				"username":   d.Get("username").(string),
-				"password":   d.Get("password").(string),
+				"password":   getSecret(d, "password"),
 				"host":       d.Get("host").(string),
 				"verify_ssl": d.Get("verify_ssl").(bool),
 			},

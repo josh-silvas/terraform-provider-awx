@@ -35,13 +35,15 @@ resource "awx_credential_azure_key_vault" "example" {
 - `client` (String) The client ID of the Azure Key Vault.
 - `name` (String) The name of the credential.
 - `organization_id` (Number) The organization ID that the credential belongs to.
-- `secret` (String, Sensitive) The secret of the Azure Key Vault.
 - `tenant` (String) The tenant ID of the Azure Key Vault.
 - `url` (String) The URL of the Azure Key Vault.
 
 ### Optional
 
 - `description` (String) The description of the credential.
+- `secret` (String, Sensitive) The secret of the Azure Key Vault.
+- `secret_wo` (String, Sensitive) The secret of the Azure Key Vault. Write-only: never stored in state. Requires Terraform >= 1.11. Use `secret` for older versions.
+- `secret_wo_version` (Number) Version of `secret_wo`. Change it to send a new value of `secret_wo` to AWX.
 
 ### Read-Only
 

@@ -12,8 +12,13 @@ import (
 
 const vaultCredentialTypeName = "Vault" //nolint:gosec
 
+// credentialVaultSecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialVaultSecrets = map[string]string{
+	"vault_password": "Vault Password.",
+}
+
 func resourceCredentialVault() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "`awx_credential_vault` manages vault credentials in AWX.",
 		CreateContext: resourceCredentialVaultCreate,
 		ReadContext:   resourceCredentialVaultRead,
@@ -51,6 +56,12 @@ func resourceCredentialVault() *schema.Resource {
 			},
 		},
 	}
+
+	for field, description := range credentialVaultSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialVaultCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -74,7 +85,7 @@ func resourceCredentialVaultCreate(ctx context.Context, d *schema.ResourceData, 
 		"organization":    d.Get("organization_id").(int),
 		"credential_type": vaultCredType.ID,
 		"inputs": map[string]interface{}{
-			"vault_password": d.Get("vault_password").(string),
+			"vault_password": getSecret(d, "vault_password"),
 			"vault_id":       d.Get("vault_id").(string),
 		},
 	}
@@ -139,6 +150,7 @@ func resourceCredentialVaultUpdate(ctx context.Context, d *schema.ResourceData, 
 		"vault_password",
 		"vault_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialVaultSecrets)...)
 
 	client := m.(*awx.AWX)
 
@@ -162,7 +174,7 @@ func resourceCredentialVaultUpdate(ctx context.Context, d *schema.ResourceData, 
 			"organization":    d.Get("organization_id").(int),
 			"credential_type": vaultCredType.ID,
 			"inputs": map[string]interface{}{
-				"vault_password": d.Get("vault_password").(string),
+				"vault_password": getSecret(d, "vault_password"),
 				"vault_id":       d.Get("vault_id").(string),
 			},
 		}

@@ -40,6 +40,8 @@ resource "awx_credential_galaxy" "example" {
 - `auth_url` (String) The URL of the Ansible Galaxy/Automation Hub API authentication endpoint.
 - `description` (String) The description of the credential.
 - `token` (String, Sensitive) The API token for the Ansible Galaxy/Automation Hub API.
+- `token_wo` (String, Sensitive) The API token for the Ansible Galaxy/Automation Hub API. Write-only: never stored in state. Requires Terraform >= 1.11. Use `token` for older versions.
+- `token_wo_version` (Number) Version of `token_wo`. Change it to send a new value of `token_wo` to AWX.
 
 ### Read-Only
 

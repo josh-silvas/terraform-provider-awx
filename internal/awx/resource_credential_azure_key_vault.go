@@ -12,8 +12,13 @@ import (
 
 const azureKeyVaultCredentialTypeName = "Microsoft Azure Key Vault" //nolint:gosec
 
+// credentialAzureKeyVaultSecrets are the secret inputs that also accept a write-only "<field>_wo" variant.
+var credentialAzureKeyVaultSecrets = map[string]string{
+	"secret": "The secret of the Azure Key Vault.",
+}
+
 func resourceCredentialAzureKeyVault() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		Description:   "The `awx_credential_azure_key_vault` resource allows you to manage Azure Key Vault credentials in Ansible AWX.",
 		CreateContext: resourceCredentialAzureKeyVaultCreate,
 		ReadContext:   resourceCredentialAzureKeyVaultRead,
@@ -61,6 +66,12 @@ func resourceCredentialAzureKeyVault() *schema.Resource {
 			},
 		},
 	}
+
+	for field, description := range credentialAzureKeyVaultSecrets {
+		addWriteOnlySecret(r.Schema, field, description)
+	}
+
+	return r
 }
 
 func resourceCredentialAzureKeyVaultCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -78,7 +89,7 @@ func resourceCredentialAzureKeyVaultCreate(ctx context.Context, d *schema.Resour
 		"inputs": map[string]interface{}{
 			"url":    d.Get("url").(string),
 			"client": d.Get("client").(string),
-			"secret": d.Get("secret").(string),
+			"secret": getSecret(d, "secret"),
 			"tenant": d.Get("tenant").(string),
 		},
 	}
@@ -140,6 +151,7 @@ func resourceCredentialAzureKeyVaultUpdate(ctx context.Context, d *schema.Resour
 		"tenant",
 		"organization_id",
 	}
+	keys = append(keys, writeOnlyVersionKeys(credentialAzureKeyVaultSecrets)...)
 
 	if d.HasChanges(keys...) {
 		id, err := strconv.Atoi(d.Id())
@@ -159,7 +171,7 @@ func resourceCredentialAzureKeyVaultUpdate(ctx context.Context, d *schema.Resour
 			"inputs": map[string]interface{}{
 				"url":    d.Get("url").(string),
 				"client": d.Get("client").(string),
-				"secret": d.Get("secret").(string),
+				"secret": getSecret(d, "secret"),
 				"tenant": d.Get("tenant").(string),
 			},
 		}

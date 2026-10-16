@@ -50,11 +50,19 @@ resource "awx_credential_machine" "example_2" {
 
 - `become_method` (String) The become method for the credential.
 - `become_password` (String, Sensitive) The become password for the credential.
+- `become_password_wo` (String, Sensitive) The become password for the credential. Write-only: never stored in state. Requires Terraform >= 1.11. Use `become_password` for older versions.
+- `become_password_wo_version` (Number) Version of `become_password_wo`. Change it to send a new value of `become_password_wo` to AWX.
 - `become_username` (String) The become username for the credential.
 - `description` (String) The description of the credential.
 - `password` (String, Sensitive) The password for the credential.
+- `password_wo` (String, Sensitive) The password for the credential. Write-only: never stored in state. Requires Terraform >= 1.11. Use `password` for older versions.
+- `password_wo_version` (Number) Version of `password_wo`. Change it to send a new value of `password_wo` to AWX.
 - `ssh_key_data` (String, Sensitive) The SSH key data for the credential.
+- `ssh_key_data_wo` (String, Sensitive) The SSH key data for the credential. Write-only: never stored in state. Requires Terraform >= 1.11. Use `ssh_key_data` for older versions.
+- `ssh_key_data_wo_version` (Number) Version of `ssh_key_data_wo`. Change it to send a new value of `ssh_key_data_wo` to AWX.
 - `ssh_key_unlock` (String, Sensitive) The SSH key unlock for the credential.
+- `ssh_key_unlock_wo` (String, Sensitive) The SSH key unlock for the credential. Write-only: never stored in state. Requires Terraform >= 1.11. Use `ssh_key_unlock` for older versions.
+- `ssh_key_unlock_wo_version` (Number) Version of `ssh_key_unlock_wo`. Change it to send a new value of `ssh_key_unlock_wo` to AWX.
 - `ssh_public_key_data` (String) The SSH public key data for the credential.
 - `username` (String) The username for the credential.
 

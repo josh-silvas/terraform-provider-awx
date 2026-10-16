@@ -36,7 +36,6 @@ resource "awx_user" "example" {
 
 ### Required
 
-- `password` (String, Sensitive) The password of the user
 - `username` (String) The username of the user
 
 ### Optional
@@ -46,6 +45,9 @@ resource "awx_user" "example" {
 - `is_superuser` (Boolean) The superuser status of the user
 - `is_system_auditor` (Boolean) The system auditor status of the user
 - `last_name` (String) The last name of the user
+- `password` (String, Sensitive) The password of the user
+- `password_wo` (String, Sensitive) The password of the user. Write-only: never stored in state. Requires Terraform >= 1.11. Use `password` for older versions.
+- `password_wo_version` (Number) Version of `password_wo`. Change it to send a new value of `password_wo` to AWX.
 - `role_entitlement` (Block Set) Set of role IDs of the role entitlements (see [below for nested schema](#nestedblock--role_entitlement))
 
 ### Read-Only
